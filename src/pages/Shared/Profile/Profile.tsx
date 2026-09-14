@@ -1141,7 +1141,6 @@ const Profile = () => {
       assigned_conversation_new_message: t(
         'notifications.email.types.assigned_conversation_new_message',
       ),
-      conversation_mention: t('notifications.email.types.conversation_mention'),
       participating_conversation_new_message: t(
         'notifications.email.types.participating_conversation_new_message',
       ),

@@ -378,7 +378,7 @@ export interface ConversationListParams {
   labels?: string[];
   q?: string;
   sort_by?: 'last_activity_at' | 'created_at' | 'priority';
-  conversation_type?: 'mention' | 'unattended' | 'participating';
+  conversation_type?: 'unattended' | 'participating';
   unread?: boolean;
   unanswered?: boolean; // EVO-1963: open + awaiting agent reply (waiting_since present)
   is_group?: boolean;

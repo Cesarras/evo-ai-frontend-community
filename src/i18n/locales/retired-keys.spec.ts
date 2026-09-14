@@ -2,12 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { flatten } from './_lib/parity';
 
 /**
- * Keys of features this repo retired (CRM-579: conversation mention).
- *
- * A retirement is spread over 12 locale files in 6 languages, and a key left
- * behind is invisible: i18n resolves it, nothing renders it, and the next grep
- * for the feature finds it and concludes the feature is still there. This spec
- * is the counter-proof — it goes red on the state before the removal.
+ * A key left behind by a retired feature is invisible: i18n still resolves it,
+ * nothing renders it, and the next grep concludes the feature is still there.
  */
 const RETIRED_KEY_FRAGMENTS = ['conversation_mention'];
 

@@ -65,6 +65,16 @@ describe('conditionAttributeRegistry', () => {
     expect(conditionAttributeRegistry.pipeline_stage_id.operators.sort()).toEqual([...expected].sort());
   });
 
+  // CRM-509: the backend reads `company` as the contact_companies association
+  // (id-matched, 4 operators). Free text with contains never fired.
+  it('company matches by company id with the four association operators', () => {
+    const expected = ['equal_to', 'not_equal_to', 'is_present', 'is_not_present'];
+    expect(conditionAttributeRegistry.company.operators.sort()).toEqual([...expected].sort());
+    expect(conditionAttributeRegistry.company.dataType).toBe('company');
+    expect(conditionAttributeRegistry.company.optionLoaderKey).toBe('companies');
+    expect(conditionAttributeRegistry.company.validFor).toEqual(['contact']);
+  });
+
   it('contact_created event surfaces only contact-context attributes', () => {
     const attrs = getAttributesForEvent('contact_created');
     const keys = attrs.map((a) => a.attributeKey);

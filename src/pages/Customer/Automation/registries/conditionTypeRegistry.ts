@@ -10,6 +10,7 @@ export type ConditionDataType =
   | 'date'
   | 'link'
   | 'pipeline'
+  | 'company'
   | 'custom_attribute';
 
 export interface ConditionTypeDescriptor {
@@ -42,6 +43,10 @@ export const conditionTypeRegistry: Record<ConditionDataType, ConditionTypeDescr
     defaultOperators: ['equal_to', 'not_equal_to', 'contains', 'does_not_contain'],
   },
   pipeline: {
+    defaultOperators: ['equal_to', 'not_equal_to', 'is_present', 'is_not_present'],
+  },
+  // The contact_companies association: matched by company id, never by text.
+  company: {
     defaultOperators: ['equal_to', 'not_equal_to', 'is_present', 'is_not_present'],
   },
   custom_attribute: {

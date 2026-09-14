@@ -14,6 +14,7 @@ const emptyFormData: AutomationFormData = {
   agents: [],
   teams: [],
   labels: [],
+  companies: [],
   pipelines: [],
   pipelineStages: [],
   priorities: [],

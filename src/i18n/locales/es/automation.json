@@ -163,6 +163,12 @@
           "equal_to": "Tiene esta etiqueta",
           "not_equal_to": "No tiene esta etiqueta",
           "attribute_changed": "Etiqueta cambiada"
+        },
+        "company": {
+          "equal_to": "Está vinculado a esta empresa",
+          "not_equal_to": "No está vinculado a esta empresa",
+          "is_present": "Tiene alguna empresa",
+          "is_not_present": "No tiene empresa"
         }
       },
       "attributes": {

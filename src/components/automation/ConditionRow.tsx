@@ -37,6 +37,7 @@ const optionLoaderToData: Record<string, Exclude<keyof AutomationFormData, 'cust
   teams: 'teams',
   inboxes: 'inboxes',
   labels: 'labels',
+  companies: 'companies',
   priorities: 'priorities',
   statuses: 'statuses',
   message_types: 'messageTypes',

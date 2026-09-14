@@ -10,7 +10,8 @@ export type OptionLoaderKey =
   | 'labels'
   | 'priorities'
   | 'statuses'
-  | 'message_types';
+  | 'message_types'
+  | 'companies';
 
 export type EventContext = 'conversation' | 'contact' | 'pipeline' | 'message';
 
@@ -152,10 +153,14 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
     validFor: ['contact'],
     i18nKey: 'form.fields.attributes.city',
   },
+  // Backend `contacts.company` is the contact_companies association (filter_keys.yml:
+  // data_type company, value = company id). Free text with contains/does_not_contain
+  // was rejected by the condition validation and never fired (CRM-509).
   company: {
     attributeKey: 'company',
-    dataType: 'text_case_insensitive',
-    operators: fromType('text_case_insensitive'),
+    dataType: 'company',
+    operators: fromType('company'),
+    optionLoaderKey: 'companies',
     validFor: ['contact'],
     i18nKey: 'form.fields.attributes.company',
   },

@@ -4,6 +4,7 @@ import { pipelinesService } from '@/services/pipelines/pipelinesService';
 import { cannedResponsesService } from '@/services/cannedResponses/cannedResponsesService';
 import messageTemplatesService from '@/services/channels/messageTemplatesService';
 import { customAttributesService } from '@/services/customAttributes/customAttributesService';
+import { contactsService } from '@/services/contacts/contactsService';
 import type { CustomAttributeDefinition } from '@/types/settings';
 
 export interface MessageTemplateVariable {
@@ -37,6 +38,7 @@ export interface AutomationFormData {
   agents: AutomationFormDataOption[];
   teams: AutomationFormDataOption[];
   labels: AutomationFormDataOption[];
+  companies: AutomationFormDataOption[];
   pipelines: AutomationFormDataOption[];
   pipelineStages: AutomationFormDataOption[];
   priorities: AutomationFormDataOption[];
@@ -83,6 +85,7 @@ export function useAutomationFormData(): {
     agents: [],
     teams: [],
     labels: [],
+    companies: [],
     pipelines: [],
     pipelineStages: [],
     priorities: HARDCODED_PRIORITIES,
@@ -100,12 +103,15 @@ export function useAutomationFormData(): {
 
     const load = async () => {
       try {
-        const [formDataResult, pipelinesResult, cannedResult, customAttrsResult] = await Promise.allSettled([
-          automationService.getFormData(),
-          pipelinesService.getPipelines().catch(() => null),
-          cannedResponsesService.getCannedResponses().catch(() => null),
-          customAttributesService.getCustomAttributes().catch(() => null),
-        ]);
+        const [formDataResult, pipelinesResult, cannedResult, customAttrsResult, companiesResult] =
+          await Promise.allSettled([
+            automationService.getFormData(),
+            pipelinesService.getPipelines().catch(() => null),
+            cannedResponsesService.getCannedResponses().catch(() => null),
+            customAttributesService.getCustomAttributes().catch(() => null),
+            // Same source as the Contacts filter: the company condition matches by id.
+            contactsService.getCompaniesList().catch(() => null),
+          ]);
 
         if (cancelled) return;
 
@@ -182,11 +188,17 @@ export function useAutomationFormData(): {
             ? (customAttrsResult.value as { data?: CustomAttributeDefinition[] }).data ?? []
             : [];
 
+        const companies =
+          companiesResult.status === 'fulfilled' && Array.isArray(companiesResult.value)
+            ? companiesResult.value.filter((c) => c?.id != null).map(toOption)
+            : [];
+
         setData({
           inboxes: inboxesArray.map(toOption),
           agents: (formData.agents ?? []).map(toOption),
           teams: (formData.teams ?? []).map(toOption),
           labels: (formData.labels ?? []).map(toOption),
+          companies,
           pipelines: pipelinesArray.map(toOption),
           pipelineStages: allStages,
           priorities: HARDCODED_PRIORITIES,

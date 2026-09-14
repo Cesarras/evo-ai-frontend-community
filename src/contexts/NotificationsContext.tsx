@@ -549,7 +549,6 @@ const NotificationsProviderInner: React.FC<NotificationsProviderProps> = ({ chil
         const assignedConversationTypes = [
           'assigned_conversation_new_message',
           'conversation_assignment',
-          'conversation_mention',
         ];
 
         const notificationType =

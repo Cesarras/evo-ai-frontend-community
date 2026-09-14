@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - N/A
 
+### Removed
+
+- **CRM-579 — resíduos da menção em conversa.** O recurso foi aposentado no backend (`evo-ai-crm-community`): nunca teve produtor, e nenhuma tela deste repo jamais emitiu a marcação `mention://`. Saem os três resíduos que sobravam aqui: o tipo `conversation_mention` da lista que decide o alerta sonoro de conversa atribuída (`NotificationsContext`), o rótulo do toggle no Perfil e o valor `'mention'` do parâmetro `conversation_type` de `ConversationListParams` — que o backend nunca suportou e que nenhuma chamada deste repo preenchia. Mais as 18 chaves de i18n (`layout.json` e `profile.json` nos 6 idiomas). ⚠️ **Ordem de merge: o backend primeiro.** O toggle *"Mencionado em conversa"* some sozinho quando a remoção do backend subir, porque a lista de toggles é filtrada por `available_types`, que o front deriva de `all_email_flags`/`all_push_flags` e o `NotificationSettingSerializer` deriva de `Notification::NOTIFICATION_TYPES`. Se este PR entrar **antes**, a chave continua vindo do backend, o toggle continua sendo desenhado e o rótulo — que acabou de sair daqui — cai no fallback `labels[key] ?? key`: a tela mostra o identificador cru `conversation_mention` até a outra metade subir. Nada quebra, mas há texto feio na janela entre os dois merges.
+
 ### Fixed
 
 - N/A

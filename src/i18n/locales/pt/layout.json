@@ -39,7 +39,6 @@
       },
       "types": {
         "conversation_assignment": "Atribuição",
-        "conversation_mention": "Menção",
         "conversation_creation": "Nova Conversa",
         "conversation_status_changed": "Status Alterado",
         "message_created": "Nova Mensagem",

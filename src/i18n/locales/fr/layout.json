@@ -39,7 +39,6 @@
       },
       "types": {
         "conversation_assignment": "Attribution",
-        "conversation_mention": "Mention",
         "conversation_creation": "Nouvelle Conversation",
         "conversation_status_changed": "Statut Modifié",
         "message_created": "Nouveau Message",

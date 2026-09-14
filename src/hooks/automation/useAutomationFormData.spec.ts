@@ -1,9 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// CRM-509: the company condition picks from the account's companies, read from the same
-// list the Contacts filter uses. A failing list must not take the rest of the form down.
-// A plain function, not a spy: the spy's own result tracking turned the rejected
+// A plain function, not a spy: the spy's own result tracking turns the rejected
 // promise into an unhandled rejection in vitest 2.
 const companies = vi.hoisted(() => ({ calls: 0, impl: async (): Promise<unknown> => [] }));
 

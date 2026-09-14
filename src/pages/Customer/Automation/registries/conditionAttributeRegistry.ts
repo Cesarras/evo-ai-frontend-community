@@ -153,9 +153,8 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
     validFor: ['contact'],
     i18nKey: 'form.fields.attributes.city',
   },
-  // Backend `contacts.company` is the contact_companies association (filter_keys.yml:
-  // data_type company, value = company id). Free text with contains/does_not_contain
-  // was rejected by the condition validation and never fired (CRM-509).
+  // Backend reads `company` as the contact_companies association: the value is a
+  // company id, and contains/does_not_contain are refused by the rule validation.
   company: {
     attributeKey: 'company',
     dataType: 'company',

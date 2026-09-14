@@ -100,7 +100,8 @@
         "from": "Da",
         "to": "A",
         "remove": "Rimuovi condizione",
-        "noValueNeeded": "Nessun valore necessario"
+        "noValueNeeded": "Nessun valore necessario",
+        "noOptions": "Nessuna opzione disponibile"
       },
       "boolean": {
         "true": "Sì",
@@ -163,6 +164,12 @@
           "equal_to": "Ha questa etichetta",
           "not_equal_to": "Non ha questa etichetta",
           "attribute_changed": "Etichetta cambiata"
+        },
+        "company": {
+          "equal_to": "È collegato a questa azienda",
+          "not_equal_to": "Non è collegato a questa azienda",
+          "is_present": "Ha un'azienda",
+          "is_not_present": "Non ha un'azienda"
         }
       },
       "attributes": {

@@ -100,7 +100,8 @@
         "from": "Desde",
         "to": "Hasta",
         "remove": "Quitar condición",
-        "noValueNeeded": "No se necesita valor"
+        "noValueNeeded": "No se necesita valor",
+        "noOptions": "No hay opciones disponibles"
       },
       "boolean": {
         "true": "Sí",

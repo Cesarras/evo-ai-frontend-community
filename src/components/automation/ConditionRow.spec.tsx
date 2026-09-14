@@ -221,8 +221,7 @@ describe('ConditionRow', () => {
     });
   });
 
-  // CRM-509: the company value is a pick from the account's companies (id), and the
-  // presence operators need no value at all.
+  // The company value is a pick by id; the presence operators take no value.
   it('offers the companies as the value of a company condition', async () => {
     const withCompanies: AutomationFormData = {
       ...emptyFormData,
@@ -264,6 +263,32 @@ describe('ConditionRow', () => {
     await userEvent.click(screen.getByRole('option', { name: 'form.fields.operators.is_present' }));
     await waitFor(() => expect(methods.getValues('conditions.0.filter_operator')).toBe('is_present'));
     expect(screen.queryByText('Globex')).toBeNull();
+  });
+
+  // An empty list must not degrade to free text: the saved value would be an id
+  // the backend cannot match.
+  it('offers no text box for a company condition when the list is empty', () => {
+    const defaults: AutomationRuleFormData = {
+      name: 'Test',
+      description: '',
+      event_name: 'contact_updated',
+      active: true,
+      mode: 'simple',
+      conditions: [
+        {
+          attribute_key: 'company',
+          filter_operator: 'equal_to',
+          query_operator: 'AND',
+          values: [],
+        },
+      ],
+      actions: [{ action_name: 'add_label', action_params: [] }],
+    };
+    renderWithForm(defaults, emptyFormData);
+
+    expect(screen.queryByRole('textbox')).toBeNull();
+    const pickers = screen.getAllByRole('combobox');
+    expect(pickers[pickers.length - 1].getAttribute('disabled')).not.toBeNull();
   });
 
   it('renders From and To labels when filter_operator is attribute_changed', () => {

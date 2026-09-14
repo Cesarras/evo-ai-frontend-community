@@ -65,8 +65,7 @@ describe('conditionAttributeRegistry', () => {
     expect(conditionAttributeRegistry.pipeline_stage_id.operators.sort()).toEqual([...expected].sort());
   });
 
-  // CRM-509: the backend reads `company` as the contact_companies association
-  // (id-matched, 4 operators). Free text with contains never fired.
+  // `company` is an association: matched by id, and only these four operators.
   it('company matches by company id with the four association operators', () => {
     const expected = ['equal_to', 'not_equal_to', 'is_present', 'is_not_present'];
     expect(conditionAttributeRegistry.company.operators.sort()).toEqual([...expected].sort());

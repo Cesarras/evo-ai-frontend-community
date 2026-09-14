@@ -100,7 +100,8 @@
         "from": "From",
         "to": "To",
         "remove": "Remove condition",
-        "noValueNeeded": "No value needed"
+        "noValueNeeded": "No value needed",
+        "noOptions": "No options available"
       },
       "boolean": {
         "true": "Yes",

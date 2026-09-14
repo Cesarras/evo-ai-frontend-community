@@ -100,7 +100,8 @@
         "from": "De",
         "to": "Para",
         "remove": "Remover condição",
-        "noValueNeeded": "Nenhum valor necessário"
+        "noValueNeeded": "Nenhum valor necessário",
+        "noOptions": "Nenhuma opção disponível"
       },
       "boolean": {
         "true": "Sim",

@@ -1,0 +1,25 @@
+{
+  "survey": {
+    "description": "How would you rate the support you received from {{inboxName}}?",
+    "rating": {
+      "label": "Your rating",
+      "veryDissatisfied": "Very dissatisfied",
+      "dissatisfied": "Dissatisfied",
+      "neutral": "Neutral",
+      "satisfied": "Satisfied",
+      "verySatisfied": "Very satisfied",
+      "successMessage": "Thanks for your rating! It helps us improve."
+    },
+    "feedback": {
+      "label": "Would you like to tell us more?",
+      "placeholder": "Write your comment here",
+      "buttonText": "Send comment"
+    },
+    "api": {
+      "errorMessage": "We could not load this survey. The link may have expired.",
+      "expiredMessage": "This survey is no longer open — ratings close 14 days after it is sent.",
+      "successMessage": "Comment sent. Thank you!",
+      "submitting": "Sending..."
+    }
+  }
+}

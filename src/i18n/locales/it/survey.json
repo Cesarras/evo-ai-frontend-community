@@ -17,6 +17,7 @@
     },
     "api": {
       "errorMessage": "Non è stato possibile caricare questo sondaggio. Il link potrebbe essere scaduto.",
+      "expiredMessage": "Questo sondaggio non è più aperto: si chiude 14 giorni dopo l'invio.",
       "successMessage": "Commento inviato. Grazie!",
       "submitting": "Invio in corso..."
     }

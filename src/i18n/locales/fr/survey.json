@@ -17,6 +17,7 @@
     },
     "api": {
       "errorMessage": "Impossible de charger cette enquête. Le lien a peut-être expiré.",
+      "expiredMessage": "Cette enquête n'est plus ouverte : elle ferme 14 jours après l'envoi.",
       "successMessage": "Commentaire envoyé. Merci !",
       "submitting": "Envoi en cours..."
     }

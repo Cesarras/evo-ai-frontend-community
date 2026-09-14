@@ -17,6 +17,7 @@
     },
     "api": {
       "errorMessage": "No pudimos cargar esta encuesta. Es posible que el enlace haya caducado.",
+      "expiredMessage": "Esta encuesta ya no está abierta: se cierra 14 días después del envío.",
       "successMessage": "Comentario enviado. ¡Gracias!",
       "submitting": "Enviando..."
     }

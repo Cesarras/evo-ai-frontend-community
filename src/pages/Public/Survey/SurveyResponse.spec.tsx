@@ -5,11 +5,9 @@ import i18n from '@/i18n/config';
 import SurveyResponse from './SurveyResponse';
 import type { SurveyDetails } from '@/types/core/survey';
 
-// CRM-606: the public CSAT page is reached from the survey e-mail with NO session
-// and NO layout, so it is the only screen whose copy depends on the `survey`
-// namespace being registered in i18n/config.ts. It was not, and the contact saw
-// the raw keys. These tests run the REAL i18n config on purpose — mocking
-// useTranslation here would assert nothing about the wiring that was broken.
+// The only screen whose copy depends on the `survey` namespace being registered in
+// i18n/config.ts. It was not, and the contact saw raw keys — so these run the REAL i18n
+// config: mocking useTranslation would assert nothing about the wiring that was broken.
 
 const getSurveyDetails = vi.fn();
 const updateSurvey = vi.fn();
@@ -37,7 +35,7 @@ const surveyDetails = (overrides: Partial<SurveyDetails> = {}): SurveyDetails =>
   ...overrides,
 });
 
-describe('Public CSAT survey page (CRM-606)', () => {
+describe('Public CSAT survey page', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     updateSurvey.mockResolvedValue(undefined);
@@ -63,10 +61,8 @@ describe('Public CSAT survey page (CRM-606)', () => {
     expect(screen.getByTitle('Muito satisfeito')).toBeInTheDocument();
   });
 
-  // The reachable branch, not a defensive one: the endpoint sends `content` only
-  // when the account configured its own prompt, and omits it otherwise, because an
-  // anonymous public endpoint has no reader locale to render a default in and this
-  // page does. That is what makes this the single owner of the phrase.
+  // A reachable branch, not a defensive one: the endpoint omits `content` whenever the
+  // account configured no prompt, which makes this page the single owner of the phrase.
   it('falls back to the translated prompt when the backend sends no content', async () => {
     getSurveyDetails.mockResolvedValue(surveyDetails());
 
@@ -99,6 +95,28 @@ describe('Public CSAT survey page (CRM-606)', () => {
     expect(
       await screen.findByText('Obrigado pela sua nota! Ela nos ajuda a melhorar.'),
     ).toBeInTheDocument();
+  });
+
+  // The endpoint answers this 422 with an English sentence the contact cannot read, and
+  // the page used to print it verbatim.
+  it('translates the expired-survey refusal instead of echoing the server string', async () => {
+    getSurveyDetails.mockResolvedValue(surveyDetails());
+    updateSurvey.mockRejectedValue({
+      response: { status: 422, data: { error: 'You cannot update the CSAT survey after 14 days' } },
+    });
+
+    render(<SurveyResponse />);
+    await screen.findByText('Sua nota');
+    await userEvent.click(screen.getByTitle('Muito satisfeito'));
+
+    expect(
+      await screen.findByText(
+        'Esta avaliação não está mais aberta — ela fecha 14 dias depois do envio.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('You cannot update the CSAT survey after 14 days'),
+    ).not.toBeInTheDocument();
   });
 
   it('translates the failure message when the survey cannot be loaded', async () => {

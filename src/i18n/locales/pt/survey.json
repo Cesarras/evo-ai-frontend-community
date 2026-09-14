@@ -17,6 +17,7 @@
     },
     "api": {
       "errorMessage": "Não foi possível carregar esta avaliação. O link pode ter expirado.",
+      "expiredMessage": "Esta avaliação não está mais aberta — ela fecha 14 dias depois do envio.",
       "successMessage": "Comentário enviado. Obrigado!",
       "submitting": "Enviando..."
     }

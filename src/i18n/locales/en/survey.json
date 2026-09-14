@@ -17,6 +17,7 @@
     },
     "api": {
       "errorMessage": "We could not load this survey. The link may have expired.",
+      "expiredMessage": "This survey is no longer open — ratings close 14 days after it is sent.",
       "successMessage": "Comment sent. Thank you!",
       "submitting": "Sending..."
     }

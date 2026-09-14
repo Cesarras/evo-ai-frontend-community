@@ -100,7 +100,8 @@
         "from": "From",
         "to": "To",
         "remove": "Remove condition",
-        "noValueNeeded": "No value needed"
+        "noValueNeeded": "No value needed",
+        "noOptions": "No options available"
       },
       "boolean": {
         "true": "Yes",
@@ -163,6 +164,12 @@
           "equal_to": "Has this label",
           "not_equal_to": "Does not have this label",
           "attribute_changed": "Label changed"
+        },
+        "company": {
+          "equal_to": "Is linked to this company",
+          "not_equal_to": "Is not linked to this company",
+          "is_present": "Has a company",
+          "is_not_present": "Has no company"
         }
       },
       "attributes": {

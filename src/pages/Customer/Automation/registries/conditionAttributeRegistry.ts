@@ -10,7 +10,8 @@ export type OptionLoaderKey =
   | 'labels'
   | 'priorities'
   | 'statuses'
-  | 'message_types';
+  | 'message_types'
+  | 'companies';
 
 export type EventContext = 'conversation' | 'contact' | 'pipeline' | 'message';
 
@@ -152,10 +153,13 @@ export const conditionAttributeRegistry: Record<string, ConditionAttributeDescri
     validFor: ['contact'],
     i18nKey: 'form.fields.attributes.city',
   },
+  // Backend reads `company` as the contact_companies association: the value is a
+  // company id, and contains/does_not_contain are refused by the rule validation.
   company: {
     attributeKey: 'company',
-    dataType: 'text_case_insensitive',
-    operators: fromType('text_case_insensitive'),
+    dataType: 'company',
+    operators: fromType('company'),
+    optionLoaderKey: 'companies',
     validFor: ['contact'],
     i18nKey: 'form.fields.attributes.company',
   },

@@ -37,6 +37,7 @@ const optionLoaderToData: Record<string, Exclude<keyof AutomationFormData, 'cust
   teams: 'teams',
   inboxes: 'inboxes',
   labels: 'labels',
+  companies: 'companies',
   priorities: 'priorities',
   statuses: 'statuses',
   message_types: 'messageTypes',
@@ -131,6 +132,18 @@ export default function ConditionRow({ control, index, formData, onRemove }: Pro
       );
     }
     if (options.length === 0) {
+      // An option-loader value is an id: with no list to pick from, a text box
+      // would save something the backend can never match.
+      if (descriptor?.optionLoaderKey) {
+        return (
+          <Select disabled value="">
+            <SelectTrigger>
+              <SelectValue placeholder={t('form.fields.conditionRow.noOptions')} />
+            </SelectTrigger>
+            <SelectContent />
+          </Select>
+        );
+      }
       return (
         <Input
           type={descriptor?.dataType === 'number' ? 'number' : 'text'}

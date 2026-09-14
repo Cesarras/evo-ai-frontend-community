@@ -31,6 +31,7 @@ const emptyFormData: AutomationFormData = {
   agents: [],
   teams: [],
   labels: [],
+  companies: [],
   pipelines: [],
   pipelineStages: [],
   priorities: [],
@@ -39,6 +40,24 @@ const emptyFormData: AutomationFormData = {
   cannedResponses: [],
   messageTemplates: [],
 };
+
+let lastMethods: ReturnType<typeof useForm<AutomationRuleFormData>> | null = null;
+function FormWithData({ defaultValues, formData }: { defaultValues: AutomationRuleFormData; formData: AutomationFormData }) {
+  const methods = useForm<AutomationRuleFormData>({
+    resolver: zodResolver(automationRuleSchema),
+    defaultValues,
+  });
+  lastMethods = methods;
+  return (
+    <FormProvider {...methods}>
+      <ConditionRow control={methods.control} index={0} formData={formData} onRemove={() => {}} />
+    </FormProvider>
+  );
+}
+function renderWithForm(defaultValues: AutomationRuleFormData, formData: AutomationFormData) {
+  render(<FormWithData defaultValues={defaultValues} formData={formData} />);
+  return lastMethods!;
+}
 
 function Wrapper({ defaultValues }: { defaultValues: AutomationRuleFormData }) {
   const methods = useForm<AutomationRuleFormData>({
@@ -200,6 +219,76 @@ describe('ConditionRow', () => {
     await waitFor(() => {
       expect(observed[observed.length - 1]).toBe('');
     });
+  });
+
+  // The company value is a pick by id; the presence operators take no value.
+  it('offers the companies as the value of a company condition', async () => {
+    const withCompanies: AutomationFormData = {
+      ...emptyFormData,
+      companies: [
+        { id: 'c-acme', name: 'Acme' },
+        { id: 'c-globex', name: 'Globex' },
+      ],
+    };
+    const defaults: AutomationRuleFormData = {
+      name: 'Test',
+      description: '',
+      event_name: 'contact_updated',
+      active: true,
+      mode: 'simple',
+      conditions: [
+        {
+          attribute_key: 'company',
+          filter_operator: 'equal_to',
+          query_operator: 'AND',
+          values: ['c-globex'],
+        },
+      ],
+      actions: [{ action_name: 'add_label', action_params: [] }],
+    };
+    const methods = renderWithForm(defaults, withCompanies);
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.getByText('Globex')).toBeTruthy();
+
+    await userEvent.click(screen.getAllByRole('combobox')[1]);
+    const opNames = (await screen.findAllByRole('option')).map((o) => o.textContent);
+    // t() is the identity here, so the per-attribute override falls back to the generic key.
+    expect(opNames.sort()).toEqual([
+      'form.fields.operators.equal_to',
+      'form.fields.operators.is_not_present',
+      'form.fields.operators.is_present',
+      'form.fields.operators.not_equal_to',
+    ]);
+
+    await userEvent.click(screen.getByRole('option', { name: 'form.fields.operators.is_present' }));
+    await waitFor(() => expect(methods.getValues('conditions.0.filter_operator')).toBe('is_present'));
+    expect(screen.queryByText('Globex')).toBeNull();
+  });
+
+  // An empty list must not degrade to free text: the saved value would be an id
+  // the backend cannot match.
+  it('offers no text box for a company condition when the list is empty', () => {
+    const defaults: AutomationRuleFormData = {
+      name: 'Test',
+      description: '',
+      event_name: 'contact_updated',
+      active: true,
+      mode: 'simple',
+      conditions: [
+        {
+          attribute_key: 'company',
+          filter_operator: 'equal_to',
+          query_operator: 'AND',
+          values: [],
+        },
+      ],
+      actions: [{ action_name: 'add_label', action_params: [] }],
+    };
+    renderWithForm(defaults, emptyFormData);
+
+    expect(screen.queryByRole('textbox')).toBeNull();
+    const pickers = screen.getAllByRole('combobox');
+    expect(pickers[pickers.length - 1].getAttribute('disabled')).not.toBeNull();
   });
 
   it('renders From and To labels when filter_operator is attribute_changed', () => {

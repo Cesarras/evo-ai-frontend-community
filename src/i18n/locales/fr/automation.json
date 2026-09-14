@@ -100,7 +100,8 @@
         "from": "De",
         "to": "À",
         "remove": "Supprimer la condition",
-        "noValueNeeded": "Aucune valeur requise"
+        "noValueNeeded": "Aucune valeur requise",
+        "noOptions": "Aucune option disponible"
       },
       "boolean": {
         "true": "Oui",
@@ -163,6 +164,12 @@
           "equal_to": "Possède cette étiquette",
           "not_equal_to": "Ne possède pas cette étiquette",
           "attribute_changed": "Étiquette modifiée"
+        },
+        "company": {
+          "equal_to": "Est lié à cette entreprise",
+          "not_equal_to": "N'est pas lié à cette entreprise",
+          "is_present": "A une entreprise",
+          "is_not_present": "N'a pas d'entreprise"
         }
       },
       "attributes": {

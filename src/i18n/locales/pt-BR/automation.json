@@ -100,7 +100,8 @@
         "from": "De",
         "to": "Para",
         "remove": "Remover condição",
-        "noValueNeeded": "Nenhum valor necessário"
+        "noValueNeeded": "Nenhum valor necessário",
+        "noOptions": "Nenhuma opção disponível"
       },
       "boolean": {
         "true": "Sim",
@@ -160,6 +161,12 @@
           "equal_to": "Tem esta etiqueta",
           "not_equal_to": "Não tem esta etiqueta",
           "attribute_changed": "Etiqueta mudou"
+        },
+        "company": {
+          "equal_to": "Está vinculado a esta empresa",
+          "not_equal_to": "Não está vinculado a esta empresa",
+          "is_present": "Tem alguma empresa",
+          "is_not_present": "Não tem empresa"
         },
         "attribute_changed": "Atributo mudou",
         "is_in": "Está em",

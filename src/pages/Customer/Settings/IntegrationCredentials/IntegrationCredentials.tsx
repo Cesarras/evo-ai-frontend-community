@@ -20,10 +20,12 @@ import { maskKey } from '@/constants/aiProviders';
 import {
   createIntegrationCredential,
   deleteConflictConsumers,
+  deleteConflictHolders,
   deleteIntegrationCredential,
   listCustomMcpServers,
   listCustomTools,
   listIntegrationCredentials,
+  parseHolders,
   updateIntegrationCredential,
 } from '@/services/agents';
 import agentIntegrationsService from '@/services/agents/agentIntegrationsService';
@@ -33,6 +35,7 @@ import type {
   ApiKeyScope,
   IntegrationCredential,
   IntegrationCredentialCreate,
+  IntegrationCredentialHolder,
   IntegrationCredentialUpdate,
 } from '@/types/agents';
 
@@ -85,7 +88,9 @@ export default function IntegrationCredentials() {
   const [formOpen, setFormOpen] = useState(false);
   const [draft, setDraft] = useState<CredentialDraft>(EMPTY_DRAFT);
   const [credentialToDelete, setCredentialToDelete] = useState<IntegrationCredential | null>(null);
-  const [deleteConflict, setDeleteConflict] = useState<string[] | null>(null);
+  const [deleteConflict, setDeleteConflict] = useState<
+    (IntegrationCredentialHolder | string)[] | null
+  >(null);
   const [connectionToDisconnect, setConnectionToDisconnect] =
     useState<IntegrationCredential | null>(null);
   const [consumersInUse, setConsumersInUse] = useState<ConsumerInUse[]>([]);
@@ -357,7 +362,7 @@ export default function IntegrationCredentials() {
 
       // The refusal names its holders, so the dialog stays open and says who
       // they are; a generic toast on top would compete with that answer.
-      const consumers = deleteConflictConsumers(error);
+      const consumers = deleteConflictHolders(error) ?? deleteConflictConsumers(error);
       if (consumers) {
         setDeleteConflict(consumers);
         return;
@@ -368,6 +373,16 @@ export default function IntegrationCredentials() {
       setSaving(false);
     }
   };
+
+  // A plain string comes from a server that does not send `holders` yet.
+  const consumerLabel = (consumer: IntegrationCredentialHolder | string) => {
+    if (typeof consumer === 'string') return consumer;
+    const label = t(`deleteDialog.holders.${consumer.kind}`, { name: consumer.name });
+    return consumer.key ? `${label} [${consumer.key}]` : label;
+  };
+
+  const referencedBy: (IntegrationCredentialHolder | string)[] =
+    parseHolders(credentialToDelete?.holders) ?? credentialToDelete?.referenced_by ?? [];
 
   if (permissionsReady && !canRead) {
     return (
@@ -764,19 +779,19 @@ export default function IntegrationCredentials() {
                 {t('deleteDialog.conflict.title')}
               </p>
               <ul className="list-disc pl-10 mt-2 space-y-1">
-                {deleteConflict.map((consumer, index) => (
-                  <li key={`${consumer}-${index}`}>{consumer}</li>
+                {deleteConflict.map(consumerLabel).map((label, index) => (
+                  <li key={`${label}-${index}`}>{label}</li>
                 ))}
               </ul>
               <p className="pl-6 mt-2">{t('deleteDialog.conflict.help')}</p>
             </div>
           ) : (
-            (credentialToDelete?.referenced_by?.length ?? 0) > 0 && (
+            referencedBy.length > 0 && (
               <p role="alert" className="flex gap-2 text-sm text-amber-600">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                 {t('deleteDialog.inUseWarning', {
-                  count: credentialToDelete?.referenced_by?.length,
-                  consumers: credentialToDelete?.referenced_by?.join(', '),
+                  count: referencedBy.length,
+                  consumers: referencedBy.map(consumerLabel).join(', '),
                 })}
               </p>
             )

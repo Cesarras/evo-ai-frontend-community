@@ -148,6 +148,10 @@ jobs:
       #     the channel "Atendentes" total is the size of that list and the current
       #     inbox members are the ones marked. The account scope itself is the host's
       #     request context — a caller-side filter here would only mask its absence.
+      #   - credential holder parsing (CRM-585): one holder the screen cannot label
+      #     discards the whole list, so the dialog falls back to the server's pt-BR
+      #     strings instead of naming part of who holds the credential. A permissive
+      #     parse renders a raw i18n key, or an empty list asserting somebody holds it.
       # The whole list runs in ~40s and is deterministic.
       #
       # Running the whole suite here was tried and reverted: 160 jsdom files in
@@ -214,6 +218,7 @@ jobs:
             src/services/contacts/labelsService.spec.ts \
             src/pages/Customer/Settings/AiCredentials/AiCredentials.spec.tsx \
             src/pages/Customer/Settings/IntegrationCredentials/IntegrationCredentials.spec.tsx \
+            src/services/agents/integrationCredentialService.spec.ts \
             src/hooks/chat/useContactUpdatedReconciler.spec.tsx \
             src/contexts/chat/ChatContext.contactUpdated.spec.tsx \
             src/contexts/chat/ConversationsContext.spec.tsx \

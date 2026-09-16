@@ -168,6 +168,16 @@ export interface ApiKeyUpdate {
  * one is a reference to the store that owns the token and never has a value. */
 export type IntegrationCredentialKind = 'static' | 'oauth';
 
+export type IntegrationCredentialHolderKind =
+  'integration' | 'tool' | 'mcp' | 'agent' | 'channel_bot';
+
+export interface IntegrationCredentialHolder {
+  kind: IntegrationCredentialHolderKind;
+  /** The provider for an integration or a channel bot. */
+  name: string;
+  key?: string;
+}
+
 /** Display state of an OAuth connection, derived by the backend from the
  * owner store at listing time — never from a copy kept in the vault. */
 // The owner store records no refresh failure: a failed renewal only reaches
@@ -190,6 +200,7 @@ export interface IntegrationCredential {
   imported_from?: string;
   /** Consumers pointing at this credential, filled as stories 2.3/2.4 land. */
   referenced_by?: string[];
+  holders?: IntegrationCredentialHolder[];
   /** OAuth rows only: mirrored metadata read live from the owner store. */
   connection_status?: OauthConnectionStatus;
   connection_expires_at?: string;

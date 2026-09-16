@@ -4,6 +4,7 @@ import type {
   IntegrationCredential,
   IntegrationCredentialCreate,
   IntegrationCredentialDeleteResponse,
+  IntegrationCredentialHolder,
   IntegrationCredentialUpdate,
 } from '@/types/agents';
 
@@ -44,11 +45,33 @@ export const deleteIntegrationCredential = async (
   return extractData<IntegrationCredentialDeleteResponse>(response);
 };
 
+const HOLDER_KINDS = new Set(['integration', 'tool', 'mcp', 'agent', 'channel_bot']);
+
+// One entry the screen cannot label discards the whole list, so the caller
+// falls back to the display strings instead of showing part of the holders.
+export const parseHolders = (value: unknown): IntegrationCredentialHolder[] | null => {
+  if (!Array.isArray(value)) return null;
+
+  const valid = value.every(entry => {
+    if (!entry || typeof entry !== 'object') return false;
+    const { kind, name, key } = entry as Record<string, unknown>;
+    return (
+      typeof kind === 'string' &&
+      HOLDER_KINDS.has(kind) &&
+      typeof name === 'string' &&
+      name.trim() !== '' &&
+      (key === undefined || typeof key === 'string')
+    );
+  });
+
+  return valid ? (value as IntegrationCredentialHolder[]) : null;
+};
+
 // The delete refuses with 409 while a consumer still points at the credential,
-// naming each holder in `details.consumers` as a ready-to-display string. The
-// whole shape is required, not just the status: a conflict without consumers
-// would render a list asserting that somebody holds it and showing nobody.
-export const deleteConflictConsumers = (error: unknown): string[] | null => {
+// naming each holder in `details`. The whole shape is required, not just the
+// status: a conflict without holders would render a list asserting that
+// somebody holds it and showing nobody.
+const deleteConflictDetails = (error: unknown): Record<string, unknown> | null => {
   if (!error || typeof error !== 'object') return null;
 
   const response = (error as { response?: { status?: number; data?: unknown } }).response;
@@ -57,8 +80,18 @@ export const deleteConflictConsumers = (error: unknown): string[] | null => {
   const data = response.data;
   if (!data || typeof data !== 'object') return null;
 
-  const consumers = (data as { error?: { details?: { consumers?: unknown } } }).error?.details
-    ?.consumers;
+  const details = (data as { error?: { details?: unknown } }).error?.details;
+  return details && typeof details === 'object' ? (details as Record<string, unknown>) : null;
+};
+
+export const deleteConflictHolders = (error: unknown): IntegrationCredentialHolder[] | null => {
+  const holders = parseHolders(deleteConflictDetails(error)?.holders);
+  return holders && holders.length > 0 ? holders : null;
+};
+
+// `details.consumers` carries the same holders as pt-BR display strings.
+export const deleteConflictConsumers = (error: unknown): string[] | null => {
+  const consumers = deleteConflictDetails(error)?.consumers;
   if (!Array.isArray(consumers) || consumers.length === 0) return null;
   if (!consumers.every(entry => typeof entry === 'string' && entry.trim() !== '')) return null;
 

@@ -20,8 +20,32 @@ vi.mock('@/contexts/PermissionsContext', () => ({
   }),
 }));
 
+// Keys render as themselves unless a test picks a locale, which resolves them
+// against the real catalog.
+let locale: string | null = null;
+
+const catalogs = import.meta.glob<Record<string, unknown>>(
+  '../../../../i18n/locales/*/integrationCredentials.json',
+  { eager: true, import: 'default' },
+);
+
+const translate = (key: string, options: Record<string, unknown> = {}) => {
+  if (!locale) return key;
+  const catalog = Object.entries(catalogs).find(([path]) =>
+    path.includes(`/locales/${locale}/`),
+  )?.[1];
+  const template = key
+    .split('.')
+    .reduce<unknown>(
+      (node, part) => (node as Record<string, unknown> | undefined)?.[part],
+      catalog,
+    );
+  if (typeof template !== 'string') return key;
+  return template.replace(/\{\{(\w+)\}\}/g, (_match, name) => String(options[name]));
+};
+
 vi.mock('@/hooks/useLanguage', () => ({
-  useLanguage: () => ({ t: (key: string) => key, currentLanguage: 'en' }),
+  useLanguage: () => ({ t: translate, currentLanguage: 'en' }),
 }));
 
 const listIntegrationCredentials = vi.fn();
@@ -41,6 +65,8 @@ vi.mock('@/services/agents', async () => {
 
   return {
     deleteConflictConsumers: actual.deleteConflictConsumers,
+    deleteConflictHolders: actual.deleteConflictHolders,
+    parseHolders: actual.parseHolders,
     listIntegrationCredentials: (...args: unknown[]) => listIntegrationCredentials(...args),
     createIntegrationCredential: (...args: unknown[]) => createIntegrationCredential(...args),
     updateIntegrationCredential: (...args: unknown[]) => updateIntegrationCredential(...args),
@@ -163,6 +189,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  locale = null;
   granted = [...ALL_PERMISSIONS];
   listIntegrationCredentials.mockResolvedValue([DIFY_CREDENTIAL, ELEVENLABS_CREDENTIAL]);
   listCustomTools.mockResolvedValue([]);
@@ -880,5 +907,171 @@ describe('IntegrationCredentials — the 409 names who holds the credential (CRM
     expect(await screen.findByText('deleteDialog.confirm')).toBeInTheDocument();
     expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
     expect(screen.queryByText('Bot de canal (whatsapp)')).not.toBeInTheDocument();
+  });
+});
+
+describe('IntegrationCredentials — holders are labelled in the interface language', () => {
+  const HOLDERS = [
+    { kind: 'agent', name: 'Cobrança', key: 'api_key' },
+    { kind: 'channel_bot', name: 'whatsapp' },
+    { kind: 'integration', name: 'github' },
+    { kind: 'mcp', name: 'Zendesk', key: 'token' },
+    { kind: 'tool', name: 'Busca', key: 'Authorization' },
+  ];
+  const LABELS = [
+    'Agente Cobrança [api_key]',
+    'Bot de canal (whatsapp)',
+    'Integração github',
+    'MCP Zendesk [token]',
+    'Ferramenta Busca [Authorization]',
+  ];
+
+  const conflictWith = (details: Record<string, unknown>) => ({
+    response: {
+      status: 409,
+      data: {
+        success: false,
+        error: { code: 'CONFLICT', message: 'integration credential is still in use', details },
+      },
+    },
+  });
+
+  const openDelete = async () => {
+    const user = userEvent.setup();
+    render(<IntegrationCredentials />);
+
+    await findAccountRow();
+    await user.click(screen.getAllByLabelText(translate('actions.delete'))[0]);
+
+    return user;
+  };
+
+  const conflictItems = async () => {
+    const alert = await screen.findByRole('alert');
+    await within(alert).findAllByRole('listitem');
+    return within(alert)
+      .getAllByRole('listitem')
+      .map(item => item.textContent);
+  };
+
+  it.each([
+    [
+      'en',
+      [
+        'Agent Cobrança [api_key]',
+        'Channel bot (whatsapp)',
+        'Integration github',
+        'MCP server Zendesk [token]',
+        'Tool Busca [Authorization]',
+      ],
+    ],
+    [
+      'es',
+      [
+        'Agente Cobrança [api_key]',
+        'Bot de canal (whatsapp)',
+        'Integración github',
+        'Servidor MCP Zendesk [token]',
+        'Herramienta Busca [Authorization]',
+      ],
+    ],
+    [
+      'fr',
+      [
+        'Agent Cobrança [api_key]',
+        'Bot de canal (whatsapp)',
+        'Intégration github',
+        'Serveur MCP Zendesk [token]',
+        'Outil Busca [Authorization]',
+      ],
+    ],
+    [
+      'it',
+      [
+        'Agente Cobrança [api_key]',
+        'Bot di canale (whatsapp)',
+        'Integrazione github',
+        'Server MCP Zendesk [token]',
+        'Strumento Busca [Authorization]',
+      ],
+    ],
+  ])('lists the 409 holders item by item in %s', async (language, expected) => {
+    locale = language;
+    deleteIntegrationCredential.mockRejectedValue(
+      conflictWith({ consumers: LABELS, holders: HOLDERS }),
+    );
+    const user = await openDelete();
+    await user.click(await screen.findByText(translate('deleteDialog.confirm')));
+
+    expect(await conflictItems()).toEqual(expected);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it('labels the pre-flight warning from the listing holders', async () => {
+    locale = 'en';
+    listIntegrationCredentials.mockResolvedValue([
+      {
+        ...DIFY_CREDENTIAL,
+        referenced_by: ['Ferramenta Busca [Authorization]'],
+        holders: [{ kind: 'tool', name: 'Busca', key: 'Authorization' }],
+      },
+    ]);
+    await openDelete();
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('referenced by 1 consumer(s): Tool Busca [Authorization].');
+    expect(alert).not.toHaveTextContent('Ferramenta');
+  });
+
+  it('keeps the pre-flight strings from a server that sends no holders', async () => {
+    locale = 'en';
+    listIntegrationCredentials.mockResolvedValue([
+      { ...DIFY_CREDENTIAL, referenced_by: ['Ferramenta Busca [Authorization]'] },
+    ]);
+    await openDelete();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'referenced by 1 consumer(s): Ferramenta Busca [Authorization].',
+    );
+  });
+
+  it('keeps the 409 strings from a server that sends no holders', async () => {
+    deleteIntegrationCredential.mockRejectedValue(conflictWith({ consumers: LABELS }));
+    const user = await openDelete();
+    await user.click(await screen.findByText(translate('deleteDialog.confirm')));
+
+    expect(await conflictItems()).toEqual(LABELS);
+  });
+
+  it('falls back to the strings when a holder cannot be labelled', async () => {
+    deleteIntegrationCredential.mockRejectedValue(
+      conflictWith({
+        consumers: ['Bot de canal (whatsapp)', 'Ferramenta Busca [Authorization]'],
+        holders: [
+          { kind: 'channel_bot', name: 'whatsapp' },
+          { kind: 'webhook', name: 'Busca' },
+        ],
+      }),
+    );
+    const user = await openDelete();
+    await user.click(await screen.findByText(translate('deleteDialog.confirm')));
+
+    expect(await conflictItems()).toEqual([
+      'Bot de canal (whatsapp)',
+      'Ferramenta Busca [Authorization]',
+    ]);
+  });
+
+  it.each([
+    ['an empty holder list', { holders: [] }],
+    ['holders that cannot be labelled', { holders: [{ kind: 'tool', name: '' }] }],
+  ])('shows the generic message, never an empty list, for %s', async (_label, details) => {
+    deleteIntegrationCredential.mockRejectedValue(conflictWith(details));
+    const user = await openDelete();
+    await user.click(await screen.findByText(translate('deleteDialog.confirm')));
+
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith('messages.deleteError'));
+    expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
   });
 });

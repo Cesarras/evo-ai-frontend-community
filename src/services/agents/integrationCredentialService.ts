@@ -5,6 +5,7 @@ import type {
   IntegrationCredentialCreate,
   IntegrationCredentialDeleteResponse,
   IntegrationCredentialHolder,
+  IntegrationCredentialHolderKind,
   IntegrationCredentialUpdate,
 } from '@/types/agents';
 
@@ -45,7 +46,18 @@ export const deleteIntegrationCredential = async (
   return extractData<IntegrationCredentialDeleteResponse>(response);
 };
 
-const HOLDER_KINDS = new Set(['integration', 'tool', 'mcp', 'agent', 'channel_bot']);
+// The set, not the union, is what accepts a holder at runtime. Declaring the
+// literal as a total Record makes a kind added to the union without a line here
+// a compile error instead of a holder rejected in silence.
+const HOLDER_KINDS = new Set(
+  Object.keys({
+    integration: null,
+    tool: null,
+    mcp: null,
+    agent: null,
+    channel_bot: null,
+  } satisfies Record<IntegrationCredentialHolderKind, null>),
+);
 
 // One entry the screen cannot label discards the whole list, so the caller
 // falls back to the display strings instead of showing part of the holders.

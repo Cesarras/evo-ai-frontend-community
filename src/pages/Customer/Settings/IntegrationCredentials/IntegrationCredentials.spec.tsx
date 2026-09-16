@@ -1074,4 +1074,159 @@ describe('IntegrationCredentials — holders are labelled in the interface langu
     expect(screen.queryByText('deleteDialog.conflict.title')).not.toBeInTheDocument();
     expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
   });
+
+  describe('at volume, in every interface language', () => {
+    const KINDS = ['tool', 'channel_bot', 'agent', 'integration', 'mcp'] as const;
+    // Names a label could trip on: brackets and a comma, parentheses, markup,
+    // quotes, characters outside Latin and outside the BMP.
+    const NAMES = [
+      'Cobrança',
+      'Busca [v2], interna',
+      'Zendesk (sandbox)',
+      '<b>Suporte</b> & Co',
+      'Aspas "duplas"',
+      '日本語',
+      'Atendimento 🚀',
+    ];
+    const KEYS = ['Authorization', 'X-Api-Key', 'chave [v2]', 'Ç, ñ'];
+
+    const VOLUME = Array.from({ length: 60 }, (_, i) => {
+      const kind = KINDS[i % KINDS.length];
+      const name = `${NAMES[i % NAMES.length]} ${i}`;
+      const keyed = kind === 'tool' || kind === 'mcp' || kind === 'agent';
+      return keyed ? { kind, name, key: KEYS[i % KEYS.length] } : { kind, name };
+    });
+
+    type Kind = (typeof KINDS)[number];
+
+    // Written out rather than read from the catalogs, so a wrong translation
+    // fails here instead of agreeing with itself.
+    const PREFIXES: Record<string, Record<Kind, (name: string) => string>> = {
+      'pt-BR': {
+        integration: n => `Integração ${n}`,
+        tool: n => `Ferramenta ${n}`,
+        mcp: n => `Servidor MCP ${n}`,
+        agent: n => `Agente ${n}`,
+        channel_bot: n => `Bot de canal (${n})`,
+      },
+      pt: {
+        integration: n => `Integração ${n}`,
+        tool: n => `Ferramenta ${n}`,
+        mcp: n => `Servidor MCP ${n}`,
+        agent: n => `Agente ${n}`,
+        channel_bot: n => `Bot de canal (${n})`,
+      },
+      en: {
+        integration: n => `Integration ${n}`,
+        tool: n => `Tool ${n}`,
+        mcp: n => `MCP server ${n}`,
+        agent: n => `Agent ${n}`,
+        channel_bot: n => `Channel bot (${n})`,
+      },
+      es: {
+        integration: n => `Integración ${n}`,
+        tool: n => `Herramienta ${n}`,
+        mcp: n => `Servidor MCP ${n}`,
+        agent: n => `Agente ${n}`,
+        channel_bot: n => `Bot de canal (${n})`,
+      },
+      fr: {
+        integration: n => `Intégration ${n}`,
+        tool: n => `Outil ${n}`,
+        mcp: n => `Serveur MCP ${n}`,
+        agent: n => `Agent ${n}`,
+        channel_bot: n => `Bot de canal (${n})`,
+      },
+      it: {
+        integration: n => `Integrazione ${n}`,
+        tool: n => `Strumento ${n}`,
+        mcp: n => `Server MCP ${n}`,
+        agent: n => `Agente ${n}`,
+        channel_bot: n => `Bot di canale (${n})`,
+      },
+    };
+
+    const labelsIn = (language: string) =>
+      VOLUME.map(holder => {
+        const label = PREFIXES[language][holder.kind](holder.name);
+        return 'key' in holder ? `${label} [${holder.key}]` : label;
+      });
+
+    // What the core sends in `details.consumers` for the same holders.
+    const CORE_STRINGS = VOLUME.map(holder => {
+      switch (holder.kind) {
+        case 'integration':
+          return `Integração ${holder.name}`;
+        case 'channel_bot':
+          return `Bot de canal (${holder.name})`;
+        case 'tool':
+          return `Ferramenta ${holder.name} [${'key' in holder ? holder.key : ''}]`;
+        case 'mcp':
+          return `MCP ${holder.name} [${'key' in holder ? holder.key : ''}]`;
+        default:
+          return `Agente ${holder.name} [${'key' in holder ? holder.key : ''}]`;
+      }
+    });
+
+    const LANGUAGES = Object.keys(PREFIXES);
+
+    it.each(LANGUAGES)(
+      'lists all 60 holders of a 409 item by item, in order, in %s',
+      async language => {
+        locale = language;
+        deleteIntegrationCredential.mockRejectedValue(
+          conflictWith({ consumers: CORE_STRINGS, holders: VOLUME }),
+        );
+        const user = await openDelete();
+        await user.click(await screen.findByText(translate('deleteDialog.confirm')));
+
+        expect(await conflictItems()).toEqual(labelsIn(language));
+        expect(toast.error).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(LANGUAGES)('names all 60 holders in the pre-flight warning in %s', async language => {
+      locale = language;
+      listIntegrationCredentials.mockResolvedValue([
+        { ...DIFY_CREDENTIAL, referenced_by: CORE_STRINGS, holders: VOLUME },
+      ]);
+      await openDelete();
+
+      const alert = await screen.findByRole('alert');
+      expect(alert).toHaveTextContent(`${labelsIn(language).join(', ')}.`, {
+        normalizeWhitespace: false,
+      });
+      expect(alert.textContent).toContain('60');
+      if (!language.startsWith('pt')) {
+        expect(alert).not.toHaveTextContent('Ferramenta ');
+      }
+    });
+
+    it('falls back to all 60 strings when one holder in the middle cannot be labelled', async () => {
+      locale = 'en';
+      const broken = VOLUME.map((holder, i) =>
+        i === 30 ? { ...holder, kind: 'webhook' } : holder,
+      );
+      deleteIntegrationCredential.mockRejectedValue(
+        conflictWith({ consumers: CORE_STRINGS, holders: broken }),
+      );
+      const user = await openDelete();
+      await user.click(await screen.findByText(translate('deleteDialog.confirm')));
+
+      expect(await conflictItems()).toEqual(CORE_STRINGS);
+    });
+
+    it('falls back to the listing strings when one holder in the middle cannot be labelled', async () => {
+      locale = 'en';
+      const broken = VOLUME.map((holder, i) => (i === 30 ? { ...holder, name: ' ' } : holder));
+      listIntegrationCredentials.mockResolvedValue([
+        { ...DIFY_CREDENTIAL, referenced_by: CORE_STRINGS, holders: broken },
+      ]);
+      await openDelete();
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(`${CORE_STRINGS.join(', ')}.`, {
+        normalizeWhitespace: false,
+      });
+    });
+  });
 });

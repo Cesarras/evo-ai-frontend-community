@@ -38,6 +38,10 @@ export default function ViewTokenModal({
 
   const maskedToken = token.token ? '•'.repeat(Math.min(token.token.length, 40)) : '';
   const scopes = parseScopesFromAPI(token.scopes);
+  // VITE_API_URL is relative ("/crm-api") when the CRM is served inside the shell.
+  const exampleUrl = new URL(`${import.meta.env.VITE_API_URL}/api/v1/contacts`, window.location.origin).href;
+  const curlExample = `curl -H "api_access_token: ${token.token}" ${exampleUrl}`;
+  const javascriptExample = `fetch('${exampleUrl}', { headers: { 'api_access_token': '${token.token}' } })`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -127,7 +131,7 @@ export default function ViewTokenModal({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Use this token in the Authorization header: <code>Authorization: Bearer {token.token.substring(0, 20)}...</code>
+              {t('viewModal.descriptions.tokenUsage')} <code>api_access_token: {token.token.substring(0, 20)}...</code>
             </p>
           </div>
 
@@ -173,13 +177,13 @@ export default function ViewTokenModal({
 
           {/* API Usage Example */}
           <div className="space-y-4 p-4 bg-muted rounded-lg">
-            <h4 className="font-medium">API Usage Example</h4>
+            <h4 className="font-medium">{t('viewModal.sections.apiUsage')}</h4>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">cURL Example</label>
+              <label className="text-sm font-medium">{t('viewModal.examples.curl')}</label>
               <div className="flex gap-2">
                 <Input
-                  value={`curl -H "api_access_token: ${token.token}" https://api.example.com/v1/endpoint`}
+                  value={curlExample}
                   readOnly
                   className="font-mono text-sm"
                 />
@@ -187,7 +191,7 @@ export default function ViewTokenModal({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopy(`curl -H "api_access_token: ${token.token}" https://api.example.com/v1/endpoint`, 'cURL Example')}
+                  onClick={() => handleCopy(curlExample, t('viewModal.examples.curl'))}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -195,10 +199,10 @@ export default function ViewTokenModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">JavaScript Example</label>
+              <label className="text-sm font-medium">{t('viewModal.examples.javascript')}</label>
               <div className="flex gap-2">
                 <Input
-                  value={`fetch('https://api.example.com/v1/endpoint', { headers: { 'Authorization': 'Bearer ${token.token}' } })`}
+                  value={javascriptExample}
                   readOnly
                   className="font-mono text-sm"
                 />
@@ -206,7 +210,7 @@ export default function ViewTokenModal({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopy(`fetch('https://api.example.com/v1/endpoint', { headers: { 'Authorization': 'Bearer ${token.token}' } })`, 'JavaScript Example')}
+                  onClick={() => handleCopy(javascriptExample, t('viewModal.examples.javascript'))}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>

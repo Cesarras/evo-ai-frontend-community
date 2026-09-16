@@ -39,7 +39,8 @@ export default function ViewTokenModal({
   const maskedToken = token.token ? '•'.repeat(Math.min(token.token.length, 40)) : '';
   const scopes = parseScopesFromAPI(token.scopes);
   // VITE_API_URL is relative ("/crm-api") when the CRM is served inside the shell.
-  const exampleUrl = new URL(`${import.meta.env.VITE_API_URL}/api/v1/contacts`, window.location.origin).href;
+  const apiBase = String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
+  const exampleUrl = new URL(`${apiBase}/api/v1/contacts`, window.location.origin).href;
   const curlExample = `curl -H "api_access_token: ${token.token}" ${exampleUrl}`;
   const javascriptExample = `fetch('${exampleUrl}', { headers: { 'api_access_token': '${token.token}' } })`;
 

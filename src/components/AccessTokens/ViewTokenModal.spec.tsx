@@ -50,6 +50,16 @@ describe('ViewTokenModal usage examples', () => {
     exampleValues().forEach(value => expect(value).toContain('https://crm.acme.com/api/v1/contacts'));
   });
 
+  it('drops a trailing slash from the API base instead of doubling it', () => {
+    vi.stubEnv('VITE_API_URL', 'https://crm.acme.com/');
+    renderModal();
+
+    exampleValues().forEach(value => {
+      expect(value).toContain('https://crm.acme.com/api/v1/contacts');
+      expect(value).not.toContain('//api');
+    });
+  });
+
   it('teaches the same header everywhere, with no placeholder host or Bearer', () => {
     vi.stubEnv('VITE_API_URL', '/crm-api');
     renderModal();

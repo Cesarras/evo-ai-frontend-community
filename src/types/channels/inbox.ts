@@ -724,6 +724,9 @@ export type MessageTemplateVariable = {
   example?: string;
   position?: number;
   component?: 'HEADER' | 'BODY' | 'BUTTONS';
+  /** Set on a dynamic URL button parameter: Meta numbers {{n}} per button, so the
+   *  variable carries which button (index among all buttons) and which {{n}}. */
+  button?: { index: number; parameter: number };
 };
 
 export interface MessageTemplate {

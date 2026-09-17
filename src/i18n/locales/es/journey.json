@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Botón {{button}} · enlace ({{n}})",
   "title": "Jornadas",
   "subtitle": "Crea jornadas automatizadas para involucrar a tus contactos a lo largo del tiempo",
   "header": {

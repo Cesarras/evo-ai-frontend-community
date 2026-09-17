@@ -733,6 +733,7 @@
     "replyPreview": {
       "replyingTo": "Rispondendo a {{name}}",
       "userFallback": "Utente",
+      "deviceFallback": "un messaggio inviato dal telefono",
       "asPrivateNote": "(come nota privata)",
       "fileAttachment": "📎 {{fileType}}",
       "fileFallback": "File",

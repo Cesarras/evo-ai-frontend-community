@@ -8,6 +8,7 @@ import {
   mediaTypeFromAttributes,
   senderNameFromAttributes,
 } from '@/utils/chat/mediaLabels';
+import { isSentFromDevice } from '@/utils/chat/messageAuthor';
 
 interface ReplyPreviewProps {
   message?: Message | null;
@@ -47,7 +48,8 @@ const ReplyPreview: React.FC<ReplyPreviewProps> = ({ message, isOwn }) => {
   }, [message, t]);
 
   const senderName = message
-    ? senderNameFromAttributes(message.content_attributes) ||
+    ? (isSentFromDevice(message) && t('messages.messageBubble.device.fallback')) ||
+      senderNameFromAttributes(message.content_attributes) ||
       message.sender?.name ||
       t('messages.replyPreview.userFallback')
     : t('messages.replyPreview.userFallback');

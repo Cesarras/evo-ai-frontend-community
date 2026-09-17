@@ -758,6 +758,7 @@
     "replyPreview": {
       "replyingTo": "Replying to {{name}}",
       "userFallback": "User",
+      "deviceFallback": "a message sent from the phone",
       "asPrivateNote": "(as private note)",
       "fileAttachment": "📎 {{fileType}}",
       "fileFallback": "File",

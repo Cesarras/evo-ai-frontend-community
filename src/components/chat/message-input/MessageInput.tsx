@@ -40,6 +40,7 @@ import { buildCannedResponseMessage } from './buildCannedResponseMessage';
 import { RichTextEditor, RichTextEditorRef } from '../rich-text-editor';
 
 import { Message } from '@/types/chat/api';
+import { isSentFromDevice } from '@/utils/chat/messageAuthor';
 import type { CannedResponse } from '@/types/knowledge';
 
 import { MessageTemplateModal } from '../message-template';
@@ -596,7 +597,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
           <Reply className="h-4 w-4" />
           <span className="font-medium">
             {t('messageInput.replyPreview.replyingTo', {
-              name: message.sender?.name || t('messageInput.replyPreview.userFallback'),
+              name: isSentFromDevice(message)
+                ? t('messageInput.replyPreview.deviceFallback')
+                : message.sender?.name || t('messageInput.replyPreview.userFallback'),
             })}
           </span>
         </div>

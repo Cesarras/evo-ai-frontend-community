@@ -6,13 +6,13 @@ vi.mock('@/hooks/useLanguage', () => ({
   useLanguage: () => ({ t: (key: string) => key }),
 }));
 
-import MessageBubble from './MessageBubble';
+import ReplyPreview from './ReplyPreview';
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
 
 const DEVICE_LABEL = 'messages.messageBubble.device.fallback';
-const AGENT_LABEL = 'messages.messageBubble.agent.fallback';
+const USER_LABEL = 'messages.replyPreview.userFallback';
 
-const makeOutgoing = (overrides: Partial<Message> = {}): Message =>
+const makeMessage = (overrides: Partial<Message> = {}): Message =>
   ({
     id: 'msg-1',
     content: 'respondi pelo celular',
@@ -30,24 +30,16 @@ const makeOutgoing = (overrides: Partial<Message> = {}): Message =>
     ...overrides,
   }) as Message;
 
-const renderBubble = (message: Message) =>
-  render(<MessageBubble message={message} isOwn={true} isFromAgent={true} showTimestamp={true} />);
-
-describe('MessageBubble author label', () => {
-  it('says the message came from the phone when the backend marked it', () => {
-    renderBubble(makeOutgoing({ content_attributes: { sent_from_device: true } }));
+describe('ReplyPreview author label', () => {
+  it('names the device when the quoted message came from the phone', () => {
+    render(<ReplyPreview message={makeMessage({ content_attributes: { sent_from_device: true } })} isOwn={true} />);
 
     expect(screen.getByText(DEVICE_LABEL)).toBeTruthy();
-  });
-
-  it('does not fall back to the generic agent label for a message from the phone', () => {
-    renderBubble(makeOutgoing({ content_attributes: { sent_from_device: true } }));
-
-    expect(screen.queryByText(AGENT_LABEL)).toBeNull();
+    expect(screen.queryByText(USER_LABEL)).toBeNull();
   });
 
   it('still names the agent who replied from the CRM', () => {
-    renderBubble(makeOutgoing({ sender: { id: 'u-1', name: 'Ana', type: 'user' } }));
+    render(<ReplyPreview message={makeMessage({ sender: { id: 'u-1', name: 'Ana', type: 'user' } })} isOwn={true} />);
 
     expect(screen.getByText('Ana')).toBeTruthy();
     expect(screen.queryByText(DEVICE_LABEL)).toBeNull();

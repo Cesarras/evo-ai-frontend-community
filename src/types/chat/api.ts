@@ -202,6 +202,7 @@ export interface MessageContentAttributes extends Record<string, unknown> {
   deleted?: boolean;
   external_created_at?: number;
   external_error?: string;
+  sent_from_device?: boolean;
 }
 
 // ===== MESSAGE =====

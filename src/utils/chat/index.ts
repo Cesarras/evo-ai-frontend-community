@@ -8,6 +8,7 @@ export * from './conversationStatus';
 export * from './filterAdapters';
 export * from './filterConverters';
 export * from './avatarHelpers';
+export * from './messageAuthor';
 export * from './responseHelpers';
 export * from './actionSupport';
 export * from './pipelineUtils';

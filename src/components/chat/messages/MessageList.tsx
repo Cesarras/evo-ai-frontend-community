@@ -15,6 +15,7 @@ import PostPreview from '@/components/chat/messages/PostPreview';
 import SystemMessage from '@/components/chat/messages/SystemMessage';
 
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
+import { isSentFromDevice } from '@/utils/chat/messageAuthor';
 
 interface PostData {
   id?: string;
@@ -486,7 +487,9 @@ const MessageList: React.FC<MessageListProps> = ({
                         {/* Nome do remetente */}
                         <div className="flex items-center gap-2 mb-0.5">
                           <span className="text-xs font-semibold text-foreground hover:underline cursor-pointer">
-                            {reply.sender?.name || t('messages.messageBubble.userFallback')}
+                            {isSentFromDevice(reply)
+                              ? t('messages.messageBubble.device.fallback')
+                              : reply.sender?.name || t('messages.messageBubble.userFallback')}
                           </span>
                           {isFromAgentReply && (
                             <Badge variant="outline" className="h-3 px-1 text-[9px] bg-green-200 text-green-900 border-green-400 dark:bg-green-900/20 dark:text-green-400 dark:border-green-700">
@@ -564,7 +567,9 @@ const MessageList: React.FC<MessageListProps> = ({
                         {/* Nome do remetente */}
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-sm font-semibold text-foreground hover:underline cursor-pointer">
-                            {rootMessage.sender?.name || t('messages.messageBubble.userFallback')}
+                            {isSentFromDevice(rootMessage)
+                              ? t('messages.messageBubble.device.fallback')
+                              : rootMessage.sender?.name || t('messages.messageBubble.userFallback')}
                           </span>
                           {isFromAgentRoot && (
                             <Badge variant="outline" className="h-4 px-1 text-[10px] bg-green-200 text-green-900 border-green-400 dark:bg-green-900/20 dark:text-green-400 dark:border-green-700">

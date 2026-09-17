@@ -27,6 +27,9 @@
         "badge": "🤖 Bot",
         "fallback": "Bot"
       },
+      "device": {
+        "fallback": "Envoyé depuis le téléphone"
+      },
       "privateNote": {
         "badge": "Note Privée",
         "description": "Visible uniquement par les Agents"

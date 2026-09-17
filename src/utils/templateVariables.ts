@@ -85,13 +85,8 @@ const extractFromComponent = (component: MessageTemplateComponent): MessageTempl
     ? extractFromButtons(component)
     : extractFromText(component.text, component.type === 'FOOTER' ? undefined : component.type);
 
-/** Label for a variable row; a button parameter is named after its button, via i18n
- *  (`templateButtonUrlParam` lives in every namespace that renders template variables). */
 const BUTTON_NAME_PATTERN = /^button_(\d+)_(\d+)$/;
 
-/** Button identity of a variable: the `button` field when the extraction set it, else
- *  parsed from the wire name — the backend declares the same `button_<index>_<n>` in
- *  `variables`, which is all the journey and automation pickers see. */
 /** The shape every picker can hand in: the inbox type, or the automation hook's own
  *  declared-variable type, which has no `button` field. */
 export type TemplateVariableLike = {
@@ -100,6 +95,9 @@ export type TemplateVariableLike = {
   button?: MessageTemplateVariable['button'];
 };
 
+/** Button identity of a variable: the `button` field when the extraction set it, else
+ *  parsed from the wire name — the backend declares the same `button_<index>_<n>` in
+ *  `variables`, which is all the journey and automation pickers see. */
 export const templateVariableButton = (
   variable: TemplateVariableLike,
 ): MessageTemplateVariable['button'] => {
@@ -108,6 +106,8 @@ export const templateVariableButton = (
   return match ? { index: Number(match[1]), parameter: Number(match[2]) } : undefined;
 };
 
+/** Label for a variable row; a button parameter is named after its button, via i18n
+ *  (`templateButtonUrlParam` lives in every namespace that renders template variables). */
 export const templateVariableLabel = (
   variable: TemplateVariableLike,
   t: (key: string, options?: Record<string, unknown>) => string,

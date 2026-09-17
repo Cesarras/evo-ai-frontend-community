@@ -87,13 +87,28 @@ const extractFromComponent = (component: MessageTemplateComponent): MessageTempl
 
 /** Label for a variable row; a button parameter is named after its button, via i18n
  *  (`templateButtonUrlParam` lives in every namespace that renders template variables). */
+const BUTTON_NAME_PATTERN = /^button_(\d+)_(\d+)$/;
+
+/** Button identity of a variable: the `button` field when the extraction set it, else
+ *  parsed from the wire name — the backend declares the same `button_<index>_<n>` in
+ *  `variables`, which is all the journey and automation pickers see. */
+export const templateVariableButton = (
+  variable: Pick<MessageTemplateVariable, 'name' | 'button'>,
+): MessageTemplateVariable['button'] => {
+  if (variable.button) return variable.button;
+  const match = BUTTON_NAME_PATTERN.exec(variable.name ?? '');
+  return match ? { index: Number(match[1]), parameter: Number(match[2]) } : undefined;
+};
+
 export const templateVariableLabel = (
   variable: MessageTemplateVariable,
   t: (key: string, options?: Record<string, unknown>) => string,
-): string =>
-  variable.button
-    ? t('templateButtonUrlParam', { button: variable.button.index + 1, n: variable.button.parameter })
+): string => {
+  const button = templateVariableButton(variable);
+  return button
+    ? t('templateButtonUrlParam', { button: button.index + 1, n: button.parameter })
     : variable.label || variable.name;
+};
 
 export const normalizeTemplateVariables = (
   variables?: Array<MessageTemplateVariable | string>,

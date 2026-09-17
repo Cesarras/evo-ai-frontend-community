@@ -138,6 +138,13 @@ describe('extractTemplateVariables — dynamic URL button', () => {
     expect(vars.map(v => v.name)).toEqual(['1', 'button_0_1']);
   });
 
+  it('labels a backend-declared button variable from its name alone (journey/automation pickers)', () => {
+    const t = (key: string, options?: Record<string, unknown>) =>
+      `${key}:${options?.button}:${options?.n}`;
+    expect(templateVariableLabel({ name: 'button_1_1' }, t)).toBe('templateButtonUrlParam:2:1');
+    expect(templateVariableLabel({ name: 'button_x' }, t)).toBe('button_x');
+  });
+
   it('labels the button parameter through i18n, and the body one as before', () => {
     const t = (key: string, options?: Record<string, unknown>) =>
       `${key}:${options?.button}:${options?.n}`;

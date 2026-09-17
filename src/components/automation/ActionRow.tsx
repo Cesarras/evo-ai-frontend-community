@@ -1,5 +1,6 @@
 import { Controller, type Control, useWatch } from 'react-hook-form';
 import { useLanguage } from '@/hooks/useLanguage';
+import { templateVariableLabel } from '@/utils/templateVariables';
 import {
   Select,
   SelectContent,
@@ -232,7 +233,7 @@ function ActionParamsRenderer({ control, index, actionName, formData, t }: Param
                       key={key}
                       value={current.processed_params?.[key] ?? ''}
                       onChange={(e) => setTemplateParam(key, e.target.value)}
-                      placeholder={key}
+                      placeholder={variable.name ? templateVariableLabel(variable, t) : key}
                     />
                   );
                 })}

@@ -95,9 +95,8 @@ export type TemplateVariableLike = {
   button?: MessageTemplateVariable['button'];
 };
 
-/** Button identity of a variable: the `button` field when the extraction set it, else
- *  parsed from the wire name — the backend declares the same `button_<index>_<n>` in
- *  `variables`, which is all the journey and automation pickers see. */
+/** Button identity: the `button` field when the extraction set it, else parsed from the
+ *  wire name — journey and automation only ever see the backend's declared `variables`. */
 export const templateVariableButton = (
   variable: TemplateVariableLike,
 ): MessageTemplateVariable['button'] => {

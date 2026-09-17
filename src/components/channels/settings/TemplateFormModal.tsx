@@ -712,10 +712,8 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
                   {t('settings.messageTemplates.form.variables')}
                 </label>
                 {/* Names are detected, never typed: a {{token}} in the text, or
-                    `button_<i>_<n>` for a dynamic URL button. The metadata is
-                    the user's and the backend PRESERVES it on save (EVO-1971): `label`
-                    (caption), `example` (composer / Start-Conversation prefill) and
-                    `source` (auto-maps automation send_template to {{contact.x}}). */}
+                    `button_<i>_<n>` for a dynamic URL button. The metadata below is the
+                    user's and the backend preserves it on save. */}
                 <div className="space-y-3">
                   {formData.variables?.map(variable => (
                     <Card key={variable.name} className="p-3 space-y-2">

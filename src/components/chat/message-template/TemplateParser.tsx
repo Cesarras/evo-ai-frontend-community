@@ -6,6 +6,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import {
   buildInitialVariableParams,
   extractTemplateVariables,
+  templateVariableLabel,
 } from '@/utils/templateVariables';
 
 interface TemplateParserProps {
@@ -147,7 +148,7 @@ const TemplateParser: React.FC<TemplateParserProps> = ({ template, channelType, 
           {variables.map(variable => (
             <div key={variable.name} className="flex items-center gap-2">
               <span className="bg-muted text-muted-foreground inline-block rounded-md text-xs py-2 px-4 min-w-[60px] text-center font-medium">
-                {variable.label || variable.name}
+                {templateVariableLabel(variable, t)}
               </span>
               <Input
                 type="text"

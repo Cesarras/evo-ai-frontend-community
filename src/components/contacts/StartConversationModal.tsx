@@ -33,6 +33,7 @@ import {
 import {
   buildInitialVariableParams,
   extractTemplateVariables,
+  templateVariableLabel,
 } from '@/utils/templateVariables';
 
 interface StartConversationModalProps {
@@ -582,7 +583,7 @@ export default function StartConversationModal({
                             return (
                               <div key={key} className="flex items-center gap-2">
                                 <span className="bg-muted text-muted-foreground inline-block rounded-md text-xs py-2 px-3 min-w-[50px] text-center font-medium">
-                                  {variable.label || key}
+                                  {templateVariableLabel(variable, t)}
                                 </span>
                                 <input
                                   type="text"

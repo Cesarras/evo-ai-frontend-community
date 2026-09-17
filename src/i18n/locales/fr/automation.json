@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Bouton {{button}} · lien ({{n}})",
   "page": {
     "title": "Automatisations",
     "subtitle": "{{count}} règles d'automatisation",

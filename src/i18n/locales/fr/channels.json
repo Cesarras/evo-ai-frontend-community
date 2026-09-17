@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Bouton {{button}} · lien ({{n}})",
   "title": "Canaux",
   "subtitle": "Gérez vos canaux de communication",
   "common": {

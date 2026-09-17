@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Button {{button}} · link ({{n}})",
   "messages": {
     "noPermissionView": "You don't have permission to view conversations",
     "noPermissionSend": "You don't have permission to send messages",

@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Pulsante {{button}} · link ({{n}})",
   "title": "Percorsi",
   "subtitle": "Crea percorsi automatizzati per coinvolgere i tuoi contatti nel tempo",
   "header": {

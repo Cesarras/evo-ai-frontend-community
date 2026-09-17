@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Pulsante {{button}} · link ({{n}})",
   "page": {
     "title": "Automazioni",
     "subtitle": "{{count}} regole di automazione",

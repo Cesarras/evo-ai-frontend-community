@@ -176,6 +176,8 @@ jobs:
             src/pages/Customer/Settings/Users/Users.spec.tsx \
             src/components/users/UserFormModal.spec.tsx \
             src/utils/apiHelpers.spec.ts \
+            src/utils/templateVariables.spec.ts \
+            src/components/channels/settings/TemplateFormModal.spec.tsx \
             src/hooks/channels/useChannelSubmission.spec.ts \
             src/hooks/channels/useChannelValidation.spec.ts \
             src/hooks/channels/useLiveChannelStatus.spec.ts \

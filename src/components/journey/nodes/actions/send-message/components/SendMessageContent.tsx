@@ -11,7 +11,7 @@ import {
 } from '@evoapi/design-system';
 import { VariableTextarea } from '@/components/journey/environment-manager';
 import { useLanguage } from '@/hooks/useLanguage';
-import { isBalancedExpression } from '@/utils/templateVariables';
+import { isBalancedExpression, templateVariableLabel } from '@/utils/templateVariables';
 import type { MessageTemplate } from '@/types/channels/inbox';
 import { TemplateVariableMapping, TemplateVariableSource } from '../SendMessageNode';
 
@@ -203,7 +203,7 @@ export function SendMessageContent({
               return (
                 <div key={variable.name} className="space-y-1">
                   <Label id={variableLabelId} className="text-xs text-muted-foreground">
-                    {variable.label || variable.name}
+                    {templateVariableLabel(variable, t)}
                     {variable.required && (
                       <span className="text-flow-feedback-error-fg"> *</span>
                     )}

@@ -53,6 +53,70 @@ const componentList = (
   return Array.isArray(components) ? components : Object.values(components);
 };
 
+const BUTTON_POSITION_BASE = 1000;
+
+/** `button_<index>_<n>`: the wire name of a dynamic URL button parameter. The backend
+ *  splits these off into Meta's button components; everything else is a body parameter. */
+export const buttonVariableName = (index: number, parameter: number): string =>
+  `button_${index}_${parameter}`;
+
+// A URL button carries its {{n}} in `url`, not in `text` (the label), and Meta numbers
+// it per button — so it gets its own identity instead of colliding with the body's {{n}}.
+const extractFromButtons = (component: MessageTemplateComponent): MessageTemplateVariable[] =>
+  (component.buttons ?? []).flatMap((button, index) => {
+    if (button.type !== 'URL' || !button.url) return [];
+
+    return Array.from(button.url.matchAll(VARIABLE_PATTERN), match => {
+      const parameter = Number.isFinite(Number(match[1])) ? Number(match[1]) : 1;
+      return {
+        name: buttonVariableName(index, parameter),
+        label: buttonVariableName(index, parameter),
+        type: 'url' as const,
+        required: true,
+        position: BUTTON_POSITION_BASE + index * 10 + parameter,
+        component: 'BUTTONS' as const,
+        button: { index, parameter },
+      };
+    });
+  });
+
+const extractFromComponent = (component: MessageTemplateComponent): MessageTemplateVariable[] =>
+  component.type === 'BUTTONS'
+    ? extractFromButtons(component)
+    : extractFromText(component.text, component.type === 'FOOTER' ? undefined : component.type);
+
+const BUTTON_NAME_PATTERN = /^button_(\d+)_(\d+)$/;
+
+/** The shape every picker can hand in: the inbox type, or the automation hook's own
+ *  declared-variable type, which has no `button` field. */
+export type TemplateVariableLike = {
+  name?: string;
+  label?: string;
+  button?: MessageTemplateVariable['button'];
+};
+
+/** Button identity: the `button` field when the extraction set it, else parsed from the
+ *  wire name — journey and automation only ever see the backend's declared `variables`. */
+export const templateVariableButton = (
+  variable: TemplateVariableLike,
+): MessageTemplateVariable['button'] => {
+  if (variable.button) return variable.button;
+  const match = BUTTON_NAME_PATTERN.exec(variable.name ?? '');
+  return match ? { index: Number(match[1]), parameter: Number(match[2]) } : undefined;
+};
+
+/** Label for a variable row; a button parameter is named after its button, via i18n
+ *  (`templateButtonUrlParam` lives in every namespace that renders template variables). */
+export const templateVariableLabel = (
+  variable: TemplateVariableLike,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string => {
+  const button = templateVariableButton(variable);
+  return button
+    ? t('templateButtonUrlParam', { button: button.index + 1, n: button.parameter })
+    : variable.label || variable.name || '';
+};
+
 export const normalizeTemplateVariables = (
   variables?: Array<MessageTemplateVariable | string>,
 ): MessageTemplateVariable[] => {
@@ -72,9 +136,7 @@ export const extractTemplateVariables = (
 ): MessageTemplateVariable[] => {
   const declared = normalizeTemplateVariables(template.variables);
   const extracted = [
-    ...componentList(template.components).flatMap(component =>
-      extractFromText(component.text, component.type === 'FOOTER' ? undefined : component.type),
-    ),
+    ...componentList(template.components).flatMap(extractFromComponent),
     ...extractFromText(template.content),
   ];
 
@@ -94,6 +156,7 @@ const formTemplateShape = (
   components: [
     ...(formData.headerText ? [{ type: 'HEADER' as const, text: formData.headerText }] : []),
     ...(formData.bodyText ? [{ type: 'BODY' as const, text: formData.bodyText }] : []),
+    ...(formData.buttons?.length ? [{ type: 'BUTTONS' as const, buttons: formData.buttons }] : []),
   ],
 });
 

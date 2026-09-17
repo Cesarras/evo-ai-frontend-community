@@ -31,7 +31,11 @@ import MessageTemplateService, {
 } from '@/services/channels/messageTemplatesService';
 import { TemplatePreview } from './TemplatePreview';
 import { MessageTemplate, TemplateFormData } from '@/types';
-import { detectTemplateFormVariables } from '@/utils/templateVariables';
+import {
+  detectTemplateFormVariables,
+  templateVariableButton,
+  templateVariableLabel,
+} from '@/utils/templateVariables';
 
 /**
  * Message textarea with an emoji picker and a `{{ }}` variable inserter,
@@ -707,15 +711,17 @@ const TemplateFormModal: React.FC<TemplateFormModalProps> = ({
                 <label className="block text-sm font-medium">
                   {t('settings.messageTemplates.form.variables')}
                 </label>
-                {/* Each variable is detected from a {{token}} in the text (name is
-                    read-only) and carries optional metadata that the backend
-                    PRESERVES on save and feeds back on edit (EVO-1971): `label`
-                    (caption), `example` (composer / Start-Conversation prefill) and
-                    `source` (auto-maps automation send_template to {{contact.x}}). */}
+                {/* Names are detected, never typed: a {{token}} in the text, or
+                    `button_<i>_<n>` for a dynamic URL button. The metadata below is the
+                    user's and the backend preserves it on save. */}
                 <div className="space-y-3">
                   {formData.variables?.map(variable => (
                     <Card key={variable.name} className="p-3 space-y-2">
-                      <Badge variant="secondary">{`{{${variable.name}}}`}</Badge>
+                      <Badge variant="secondary">
+                        {templateVariableButton(variable)
+                          ? templateVariableLabel(variable, t)
+                          : `{{${variable.name}}}`}
+                      </Badge>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <Input
                           value={variable.label ?? ''}

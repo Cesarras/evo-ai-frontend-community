@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Botão {{button}} · link ({{n}})",
   "title": "Contatos",
   "card": {
     "phone": "Telefone",

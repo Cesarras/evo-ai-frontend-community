@@ -38,6 +38,13 @@ export default function ViewTokenModal({
 
   const maskedToken = token.token ? '•'.repeat(Math.min(token.token.length, 40)) : '';
   const scopes = parseScopesFromAPI(token.scopes);
+  // VITE_API_URL is relative ("/crm-api") when the CRM is served inside the shell.
+  const apiBase = String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
+  const exampleUrl = new URL(`${apiBase}/api/v1/contacts`, window.location.origin).href;
+  // Hyphens, not underscores: nginx drops underscored request headers unless
+  // underscores_in_headers is on. Rails reads both as HTTP_API_ACCESS_TOKEN.
+  const curlExample = `curl -H "Api-Access-Token: ${token.token}" ${exampleUrl}`;
+  const javascriptExample = `fetch('${exampleUrl}', { headers: { 'Api-Access-Token': '${token.token}' } })`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -75,7 +82,7 @@ export default function ViewTokenModal({
 
           {/* Token ID */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Token ID</label>
+            <label className="text-sm font-medium">{t('viewModal.labels.tokenId')}</label>
             <div className="flex gap-2">
               <Input
                 value={token.id}
@@ -86,13 +93,13 @@ export default function ViewTokenModal({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => handleCopy(token.id, 'Token ID')}
+                onClick={() => handleCopy(token.id, t('viewModal.labels.tokenId'))}
               >
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Unique identifier for this access token
+              {t('viewModal.descriptions.tokenId')}
             </p>
           </div>
 
@@ -127,7 +134,7 @@ export default function ViewTokenModal({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Use this token in the Authorization header: <code>Authorization: Bearer {token.token.substring(0, 20)}...</code>
+              {t('viewModal.descriptions.tokenUsage')} <code>Api-Access-Token: {token.token.substring(0, 20)}...</code>
             </p>
           </div>
 
@@ -142,17 +149,17 @@ export default function ViewTokenModal({
                   </Badge>
                 ))
               ) : (
-                <span className="text-sm text-muted-foreground">No scopes configured</span>
+                <span className="text-sm text-muted-foreground">{t('viewModal.descriptions.noScopes')}</span>
               )}
             </div>
             <p className="text-xs text-muted-foreground">
-              Permissions that this token has access to
+              {t('viewModal.descriptions.scopes')}
             </p>
           </div>
 
           {/* Token Details */}
           <div className="space-y-4 p-4 bg-muted rounded-lg">
-            <h4 className="font-medium">Token Details</h4>
+            <h4 className="font-medium">{t('viewModal.sections.tokenDetails')}</h4>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -160,26 +167,26 @@ export default function ViewTokenModal({
                 <p className="text-sm">{new Date(token.created_at).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Last Updated</p>
+                <p className="text-sm font-medium text-muted-foreground">{t('viewModal.labels.updatedAt')}</p>
                 <p className="text-sm">{new Date(token.updated_at).toLocaleString()}</p>
               </div>
             </div>
 
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Owner ID</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('viewModal.labels.ownerId')}</p>
               <p className="text-sm font-mono">{token.owner_id}</p>
             </div>
           </div>
 
           {/* API Usage Example */}
           <div className="space-y-4 p-4 bg-muted rounded-lg">
-            <h4 className="font-medium">API Usage Example</h4>
+            <h4 className="font-medium">{t('viewModal.sections.apiUsage')}</h4>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">cURL Example</label>
+              <label className="text-sm font-medium">{t('viewModal.examples.curl')}</label>
               <div className="flex gap-2">
                 <Input
-                  value={`curl -H "api_access_token: ${token.token}" https://api.example.com/v1/endpoint`}
+                  value={curlExample}
                   readOnly
                   className="font-mono text-sm"
                 />
@@ -187,7 +194,7 @@ export default function ViewTokenModal({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopy(`curl -H "api_access_token: ${token.token}" https://api.example.com/v1/endpoint`, 'cURL Example')}
+                  onClick={() => handleCopy(curlExample, t('viewModal.examples.curl'))}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -195,10 +202,10 @@ export default function ViewTokenModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">JavaScript Example</label>
+              <label className="text-sm font-medium">{t('viewModal.examples.javascript')}</label>
               <div className="flex gap-2">
                 <Input
-                  value={`fetch('https://api.example.com/v1/endpoint', { headers: { 'Authorization': 'Bearer ${token.token}' } })`}
+                  value={javascriptExample}
                   readOnly
                   className="font-mono text-sm"
                 />
@@ -206,7 +213,7 @@ export default function ViewTokenModal({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => handleCopy(`fetch('https://api.example.com/v1/endpoint', { headers: { 'Authorization': 'Bearer ${token.token}' } })`, 'JavaScript Example')}
+                  onClick={() => handleCopy(javascriptExample, t('viewModal.examples.javascript'))}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -220,7 +227,7 @@ export default function ViewTokenModal({
               <Key className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
               <div>
                 <h4 className="font-medium text-yellow-800 dark:text-yellow-200">
-                  Important - Security
+                  {t('viewModal.sections.security')}
                 </h4>
                 <ul className="mt-2 text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
                   <li>• Never expose the access token in client-side code or public repositories</li>

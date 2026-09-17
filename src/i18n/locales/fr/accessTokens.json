@@ -100,7 +100,7 @@
     "copyToken": "Jeton d'Accès",
     "descriptions": {
       "tokenId": "Identifiant unique pour ce jeton d'accès",
-      "tokenUsage": "Utilisez ce jeton dans l'en-tête Authorization: Authorization: Bearer {token}...",
+      "tokenUsage": "Envoyez ce jeton dans l'en-tête :",
       "scopes": "Permissions auxquelles ce jeton a accès",
       "noScopes": "Aucune portée configurée"
     },

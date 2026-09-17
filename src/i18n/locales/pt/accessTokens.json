@@ -100,7 +100,7 @@
     "copyToken": "Token de Acesso",
     "descriptions": {
       "tokenId": "Identificador único para este token de acesso",
-      "tokenUsage": "Use este token no cabeçalho Authorization: Authorization: Bearer {token}...",
+      "tokenUsage": "Envie este token no cabeçalho:",
       "scopes": "Permissões que este token tem acesso",
       "noScopes": "Nenhum escopo configurado"
     },

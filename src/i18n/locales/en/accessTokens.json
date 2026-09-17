@@ -100,7 +100,7 @@
     "copyToken": "Access Token",
     "descriptions": {
       "tokenId": "Unique identifier for this access token",
-      "tokenUsage": "Use this token in the Authorization header: Authorization: Bearer {token}...",
+      "tokenUsage": "Send this token in the header:",
       "scopes": "Permissions that this token has access to",
       "noScopes": "No scopes configured"
     },

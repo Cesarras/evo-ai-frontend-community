@@ -39,8 +39,8 @@ describe('ViewTokenModal usage examples', () => {
 
     const [curl, javascript] = exampleValues();
     const url = `${window.location.origin}/crm-api/api/v1/contacts`;
-    expect(curl).toBe(`curl -H "api_access_token: ${TOKEN.token}" ${url}`);
-    expect(javascript).toBe(`fetch('${url}', { headers: { 'api_access_token': '${TOKEN.token}' } })`);
+    expect(curl).toBe(`curl -H "Api-Access-Token: ${TOKEN.token}" ${url}`);
+    expect(javascript).toBe(`fetch('${url}', { headers: { 'Api-Access-Token': '${TOKEN.token}' } })`);
   });
 
   it('keeps an absolute API base as configured', () => {
@@ -64,9 +64,9 @@ describe('ViewTokenModal usage examples', () => {
     vi.stubEnv('VITE_API_URL', '/crm-api');
     renderModal();
 
-    expect(screen.getByText(/^api_access_token: a{20}\.\.\.$/)).toBeInTheDocument();
+    expect(screen.getByText(/^Api-Access-Token: a{20}\.\.\.$/)).toBeInTheDocument();
     exampleValues().forEach(value => {
-      expect(value).toContain('api_access_token');
+      expect(value).toContain('Api-Access-Token');
       expect(value).not.toMatch(/Bearer|Authorization|api\.example\.com/);
     });
   });

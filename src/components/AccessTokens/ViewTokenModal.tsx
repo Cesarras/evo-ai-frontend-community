@@ -41,8 +41,10 @@ export default function ViewTokenModal({
   // VITE_API_URL is relative ("/crm-api") when the CRM is served inside the shell.
   const apiBase = String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '');
   const exampleUrl = new URL(`${apiBase}/api/v1/contacts`, window.location.origin).href;
-  const curlExample = `curl -H "api_access_token: ${token.token}" ${exampleUrl}`;
-  const javascriptExample = `fetch('${exampleUrl}', { headers: { 'api_access_token': '${token.token}' } })`;
+  // Hyphens, not underscores: nginx drops underscored request headers unless
+  // underscores_in_headers is on. Rails reads both as HTTP_API_ACCESS_TOKEN.
+  const curlExample = `curl -H "Api-Access-Token: ${token.token}" ${exampleUrl}`;
+  const javascriptExample = `fetch('${exampleUrl}', { headers: { 'Api-Access-Token': '${token.token}' } })`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -132,7 +134,7 @@ export default function ViewTokenModal({
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              {t('viewModal.descriptions.tokenUsage')} <code>api_access_token: {token.token.substring(0, 20)}...</code>
+              {t('viewModal.descriptions.tokenUsage')} <code>Api-Access-Token: {token.token.substring(0, 20)}...</code>
             </p>
           </div>
 

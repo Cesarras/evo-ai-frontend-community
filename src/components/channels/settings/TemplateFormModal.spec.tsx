@@ -200,6 +200,34 @@ describe('TemplateFormModal', () => {
     );
   });
 
+  // A dynamic URL button's {{n}} lives in `url`, so the detected name is the synthetic
+  // `button_0_1` — showing it as a {{token}} would tell the user to type one.
+  it('names a dynamic URL button parameter by its button, not as a {{token}}', () => {
+    render(
+      <TemplateFormModal
+        isOpen
+        mode="create"
+        channelType="Channel::Whatsapp"
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+    fireEvent.change(
+      screen.getByPlaceholderText('settings.messageTemplates.form.bodyTextPlaceholder'),
+      { target: { value: 'Oi {{1}}' } },
+    );
+    fireEvent.click(screen.getByText('settings.messageTemplates.form.addButton'));
+    const selects = screen.getAllByTestId('ds-select');
+    fireEvent.change(selects[selects.length - 1], { target: { value: 'URL' } });
+    fireEvent.change(screen.getByPlaceholderText('settings.messageTemplates.form.urlPlaceholder'), {
+      target: { value: 'https://bms-link.test/{{1}}' },
+    });
+
+    expect(screen.getByText('{{1}}')).toBeInTheDocument();
+    expect(screen.getByText('templateButtonUrlParam')).toBeInTheDocument();
+    expect(screen.queryByText('{{button_0_1}}')).not.toBeInTheDocument();
+  });
+
   it('renders the simple content editor for a non-structured channel', () => {
     render(
       <TemplateFormModal

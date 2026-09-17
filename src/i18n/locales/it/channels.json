@@ -1,4 +1,5 @@
 {
+  "templateButtonUrlParam": "Pulsante {{button}} · link ({{n}})",
   "title": "Canali",
   "subtitle": "Gestisci i tuoi canali di comunicazione",
   "common": {

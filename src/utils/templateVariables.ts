@@ -92,8 +92,16 @@ const BUTTON_NAME_PATTERN = /^button_(\d+)_(\d+)$/;
 /** Button identity of a variable: the `button` field when the extraction set it, else
  *  parsed from the wire name — the backend declares the same `button_<index>_<n>` in
  *  `variables`, which is all the journey and automation pickers see. */
+/** The shape every picker can hand in: the inbox type, or the automation hook's own
+ *  declared-variable type, which has no `button` field. */
+export type TemplateVariableLike = {
+  name?: string;
+  label?: string;
+  button?: MessageTemplateVariable['button'];
+};
+
 export const templateVariableButton = (
-  variable: Pick<MessageTemplateVariable, 'name' | 'button'>,
+  variable: TemplateVariableLike,
 ): MessageTemplateVariable['button'] => {
   if (variable.button) return variable.button;
   const match = BUTTON_NAME_PATTERN.exec(variable.name ?? '');
@@ -101,13 +109,13 @@ export const templateVariableButton = (
 };
 
 export const templateVariableLabel = (
-  variable: MessageTemplateVariable,
+  variable: TemplateVariableLike,
   t: (key: string, options?: Record<string, unknown>) => string,
 ): string => {
   const button = templateVariableButton(variable);
   return button
     ? t('templateButtonUrlParam', { button: button.index + 1, n: button.parameter })
-    : variable.label || variable.name;
+    : variable.label || variable.name || '';
 };
 
 export const normalizeTemplateVariables = (

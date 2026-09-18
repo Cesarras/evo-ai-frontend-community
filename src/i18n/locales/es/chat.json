@@ -27,6 +27,9 @@
         "badge": "🤖 Bot",
         "fallback": "Bot"
       },
+      "device": {
+        "fallback": "Enviado desde el teléfono"
+      },
       "privateNote": {
         "badge": "Nota Privada",
         "description": "Visible solo para Agentes"
@@ -730,6 +733,7 @@
     "replyPreview": {
       "replyingTo": "Respondiendo a {{name}}",
       "userFallback": "Usuario",
+      "deviceFallback": "un mensaje enviado desde el teléfono",
       "asPrivateNote": "(como nota privada)",
       "fileAttachment": "📎 {{fileType}}",
       "fileFallback": "Archivo",

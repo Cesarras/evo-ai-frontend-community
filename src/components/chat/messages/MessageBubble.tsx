@@ -19,6 +19,7 @@ import {
 } from '@evoapi/design-system/alert-dialog';
 import { LockIcon, Reply, Copy, Trash2, AlertTriangle, Shield, Ban } from 'lucide-react';
 import { Message, MESSAGE_TYPE } from '@/types/chat/api';
+import { isSentFromDevice } from '@/utils/chat/messageAuthor';
 import { useLanguage } from '@/hooks/useLanguage';
 import MessageText from '@/components/chat/messages/MessageText';
 import MessageImage from '@/components/chat/messages/MessageImage';
@@ -491,8 +492,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                 protótipo: nome em destaque no topo, cor clara sobre o fundo colorido. */}
             {isOwn && (isFromAgent || isFromBot) && (
               <div className="text-xs font-bold mb-1 opacity-90">
-                {message.sender?.name ||
-                  (isFromBot ? t('messages.messageBubble.bot.fallback') : t('messages.messageBubble.agent.fallback'))}
+                {isSentFromDevice(message)
+                  ? t('messages.messageBubble.device.fallback')
+                  : message.sender?.name ||
+                    (isFromBot ? t('messages.messageBubble.bot.fallback') : t('messages.messageBubble.agent.fallback'))}
               </div>
             )}
 

@@ -30,6 +30,8 @@ export interface ToolsConfigData {
   }>;
   // Configurações avançadas
   load_memory: boolean;
+  memory_short_term_max_messages: number;
+  memory_medium_term_compression_interval: number;
   preload_memory: boolean;
   planner: boolean;
   load_knowledge: boolean;
@@ -139,6 +141,8 @@ const ToolsConfigForm = ({
       <AdvancedSettingsSection
         data={{
           load_memory: data.load_memory,
+          memory_short_term_max_messages: data.memory_short_term_max_messages,
+          memory_medium_term_compression_interval: data.memory_medium_term_compression_interval,
           preload_memory: data.preload_memory,
           planner: data.planner,
           load_knowledge: data.load_knowledge,

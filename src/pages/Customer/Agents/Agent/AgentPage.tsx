@@ -114,6 +114,8 @@ const AgentPage = () => {
     custom_mcp_servers: [],
     // Configurações avançadas
     load_memory: false,
+    memory_short_term_max_messages: 50,
+    memory_medium_term_compression_interval: 10,
     preload_memory: false,
     planner: false,
     load_knowledge: false,
@@ -239,6 +241,8 @@ const AgentPage = () => {
             }>,
             // Configurações avançadas
             load_memory: agentData.config?.load_memory || false,
+            memory_short_term_max_messages: agentData.config?.memory_short_term_max_messages || 50,
+            memory_medium_term_compression_interval: agentData.config?.memory_medium_term_compression_interval || 10,
             preload_memory: agentData.config?.preload_memory || false,
             planner: agentData.config?.planner || false,
             load_knowledge: agentData.config?.load_knowledge || false,

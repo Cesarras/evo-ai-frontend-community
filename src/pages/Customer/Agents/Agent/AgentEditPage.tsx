@@ -914,7 +914,7 @@ const AgentEditPage = () => {
                   onApiKeysReload={loadApiKeys}
                   advancedSettings={advancedSettings}
                   onAdvancedSettingsChange={data => {
-                    setAdvancedSettings(data);
+                    setAdvancedSettings(prev => ({ ...prev, ...data }));
                     setIsDirty(true);
                   }}
                   onSave={handleSave}

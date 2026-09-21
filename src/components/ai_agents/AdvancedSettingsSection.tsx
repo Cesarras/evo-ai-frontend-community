@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Badge, Card, CardContent, CardHeader, Switch, Label, Input } from '@evoapi/design-system';
 import { Settings, Brain, Zap } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -10,6 +10,10 @@ export interface AdvancedSettingsData {
   preload_memory: boolean;
   memory_short_term_max_messages: number;
   memory_medium_term_compression_interval: number;
+  memory_base_config_id?: string;
+  preload_knowledge?: boolean;
+  knowledge_base_config_id?: string;
+  knowledge_max_results?: number;
   planner: boolean;
   load_knowledge: boolean;
   knowledge_tags: string[];

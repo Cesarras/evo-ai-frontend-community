@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/hooks/useLanguage';
 import {
   Dialog,
@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@evoapi/design-system';
 import { CreateStageData } from '@/types/analytics';
+import agentBotsService from '@/services/channels/agentBotsService';
 
 interface CreateStageModalProps {
   open: boolean;
@@ -50,6 +51,22 @@ export default function CreateStageModal({
     stage_type: 'active',
     automation_rules: { description: '' },
   });
+  const [agentBots, setAgentBots] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    agentBotsService
+      .getAll()
+      .then(bots => {
+        if (cancelled) return;
+        setAgentBots(bots.map(b => ({ id: String(b.id), name: b.name })));
+      })
+      .catch(() => {
+        if (!cancelled) setAgentBots([]);
+      });
+    return () => { cancelled = true; };
+  }, [open]);
 
   const colorOptions = getColorOptions(t);
 
@@ -66,6 +83,7 @@ export default function CreateStageModal({
       name: '',
       color: '#3B82F6',
       stage_type: 'active',
+      agent_bot_id: null,
       automation_rules: { description: '' },
     });
   };
@@ -167,6 +185,27 @@ export default function CreateStageModal({
                   <SelectItem value="active">{t('createStage.stageTypes.active')}</SelectItem>
                   <SelectItem value="completed">{t('createStage.stageTypes.completed')}</SelectItem>
                   <SelectItem value="cancelled">{t('createStage.stageTypes.cancelled')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Agent Bot */}
+            <div className="grid gap-2">
+              <Label>Agente (Bot)</Label>
+              <Select
+                value={formData.agent_bot_id || undefined}
+                onValueChange={(value) => setFormData({ ...formData, agent_bot_id: value || null })}
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Nenhum agente vinculado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {agentBots.map((bot) => (
+                    <SelectItem key={bot.id} value={bot.id}>
+                      {bot.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

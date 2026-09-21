@@ -104,6 +104,7 @@ export interface PipelineStage {
   position: number;
   pipeline_id?: string;
   stage_type?: string;
+  agent_bot_id?: string | null;
   automation_rules?: {
     description?: string;
     rules?: StageAutomationRule[];
@@ -227,6 +228,7 @@ export interface CreateStageData {
   name: string;
   color: string;
   stage_type: 'active' | 'completed' | 'cancelled';
+  agent_bot_id?: string | null;
   automation_rules?: {
     description?: string;
   };

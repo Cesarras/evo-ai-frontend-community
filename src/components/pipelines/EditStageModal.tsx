@@ -61,6 +61,7 @@ interface EditStageModalProps {
     name: string;
     color: string;
     stage_type: string;
+    agent_bot_id?: string | null;
     automation_rules: { description: string; rules: StageAutomationRule[] };
     custom_fields?: Record<string, unknown> & {
       attributes?: string[];
@@ -90,6 +91,7 @@ export default function EditStageModal({
   const [labels, setLabels] = useState<ConversationLabel[]>([]);
   const [pipelinesWithStages, setPipelinesWithStages] = useState<PipelineWithStages[]>([]);
   const [agentBots, setAgentBots] = useState<AgentBotOption[]>([]);
+  const [agentBotId, setAgentBotId] = useState<string | null>(null);
   const [messageTemplates, setMessageTemplates] = useState<MessageTemplateOption[]>([]);
 
   const stageColors = getStageColors(t);
@@ -203,6 +205,7 @@ export default function EditStageModal({
       setStageType(stage.stage_type || 'active');
       setDescription(stage.automation_rules?.description || stage.description || '');
       setAutomationRules(stage.automation_rules?.rules || []);
+      setAgentBotId((stage as any).agent_bot_id ?? null);
       // Load attributes array from custom_fields.attributes
       // Structure: custom_fields = { attributes: ["key1", "key2", ...] }
       const attributesArray = (stage.custom_fields?.attributes as string[]) || [];
@@ -261,6 +264,7 @@ export default function EditStageModal({
       name: name.trim(),
       color,
       stage_type: stageType,
+      agent_bot_id: agentBotId,
       automation_rules: automationRulesPayload,
       custom_fields: attributeKeys.length > 0
         ? {
@@ -350,6 +354,26 @@ export default function EditStageModal({
                 <SelectItem value="active">{t('editStage.stageTypes.active')}</SelectItem>
                 <SelectItem value="completed">{t('editStage.stageTypes.completed')}</SelectItem>
                 <SelectItem value="cancelled">{t('editStage.stageTypes.cancelled')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Agent Bot */}
+          <div className="grid gap-2">
+            <Label>Agente (Bot)</Label>
+            <Select
+              value={agentBotId || undefined}
+              onValueChange={(value) => setAgentBotId(value || null)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Nenhum agente vinculado" />
+              </SelectTrigger>
+              <SelectContent>
+                {agentBots.map((bot) => (
+                  <SelectItem key={bot.id} value={bot.id}>
+                    {bot.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

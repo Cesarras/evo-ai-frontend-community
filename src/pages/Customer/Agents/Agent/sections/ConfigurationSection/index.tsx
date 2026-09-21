@@ -25,6 +25,9 @@ import {
 import ContactEditModal from '@/components/agents/configuration/ContactEditModal';
 import { BehaviorSettings, ExternalConfigData } from '@/components/agents/configuration/types';
 import CollapsibleCard from '@/components/ai_agents/CollapsibleCard';
+import AdvancedSettingsSection, {
+  AdvancedSettingsData,
+} from '@/components/ai_agents/AdvancedSettingsSection';
 import {
   isA2AAgent,
   isExternalAgent,
@@ -44,6 +47,8 @@ interface ConfigurationSectionProps {
   transferRules: TransferRule[];
   pipelineRules: PipelineRule[];
   contactEditConfig: ContactEditConfig;
+  advancedSettings: AdvancedSettingsData;
+  onAdvancedSettingsChange: (data: AdvancedSettingsData) => void;
   availablePipelines?: Array<{
     id: string;
     name: string;
@@ -64,6 +69,7 @@ interface ConfigurationSectionProps {
   // Agent save threaded to the config modals (CRM-213); resolves false on failure.
   onSave?: () => Promise<boolean> | boolean | void;
   isSaving?: boolean;
+  isReadOnly?: boolean;
 }
 
 const ConfigurationSection = ({
@@ -77,6 +83,8 @@ const ConfigurationSection = ({
   transferRules,
   pipelineRules,
   contactEditConfig,
+  advancedSettings,
+  onAdvancedSettingsChange,
   availablePipelines = [],
   availableUsers = [],
   availableTeams = [],
@@ -92,12 +100,14 @@ const ConfigurationSection = ({
   onApiKeysReload,
   onSave,
   isSaving,
+  isReadOnly = false,
 }: ConfigurationSectionProps) => {
   const { t } = useLanguage('aiAgents');
 
   const [showTransferRulesModal, setShowTransferRulesModal] = useState(false);
   const [showPipelineRulesModal, setShowPipelineRulesModal] = useState(false);
   const [showContactEditModal, setShowContactEditModal] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   // "Model and API" covers whatever provider the type has: key plus model (llm),
   // agent card (a2a), external provider (external).
@@ -175,6 +185,14 @@ const ConfigurationSection = ({
           />
         </CollapsibleCard>
       )}
+
+      <AdvancedSettingsSection
+        data={advancedSettings}
+        isOpen={advancedOpen}
+        onToggle={() => setAdvancedOpen(prev => !prev)}
+        onAdvancedSettingsChange={onAdvancedSettingsChange}
+        isReadOnly={isReadOnly}
+      />
     </div>
   );
 

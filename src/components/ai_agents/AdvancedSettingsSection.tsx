@@ -1,13 +1,15 @@
-import { useCallback } from 'react';
-import { Badge, Card, CardContent, CardHeader, Switch, Label } from '@evoapi/design-system';
+import { useCallback, useState } from 'react';
+import { Badge, Card, CardContent, CardHeader, Switch, Label, Input } from '@evoapi/design-system';
 import { Settings, Brain, Zap } from 'lucide-react';
 import { useLanguage } from '@/hooks/useLanguage';
 
 import CollapsibleHeader from './CollapsibleHeader';
 
-interface AdvancedSettingsData {
+export interface AdvancedSettingsData {
   load_memory: boolean;
   preload_memory: boolean;
+  memory_short_term_max_messages: number;
+  memory_medium_term_compression_interval: number;
   planner: boolean;
   load_knowledge: boolean;
   knowledge_tags: string[];
@@ -32,7 +34,7 @@ const AdvancedSettingsSection = ({
   // const [knowledgeTagInput, setKnowledgeTagInput] = useState('');
 
   const handleAdvancedConfigChange = useCallback(
-    (field: keyof AdvancedSettingsData, value: boolean | string[]) => {
+    (field: keyof AdvancedSettingsData, value: boolean | string[] | number) => {
       onAdvancedSettingsChange({
         ...data,
         [field]: value,
@@ -141,6 +143,68 @@ const AdvancedSettingsSection = ({
                   <p className="text-xs text-muted-foreground">
                     {t('memory.preloadMemoryDescription')}
                   </p>
+                </div>
+              )}
+
+              {/* Memory Short Term Max Messages */}
+              {data.load_memory && (
+                <div className="mt-4 p-3 bg-muted/50 rounded-md border border-dashed space-y-2">
+                  <div>
+                    <Label htmlFor="memory-short-term-max" className="text-sm font-medium">
+                      {t('memory.shortTermMaxMessages') || 'Máximo de mensagens (curto prazo)'}
+                    </Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {t('memory.shortTermMaxMessagesDescription') ||
+                        'Quantidade máxima de mensagens mantidas na memória de curto prazo.'}
+                    </p>
+                  </div>
+                  <Input
+                    id="memory-short-term-max"
+                    type="number"
+                    min={1}
+                    value={data.memory_short_term_max_messages}
+                    onChange={e =>
+                      handleAdvancedConfigChange(
+                        'memory_short_term_max_messages',
+                        parseInt(e.target.value, 10) || 50,
+                      )
+                    }
+                    disabled={isReadOnly}
+                    className="max-w-[120px]"
+                  />
+                </div>
+              )}
+
+              {/* Memory Medium Term Compression Interval */}
+              {data.load_memory && (
+                <div className="mt-4 p-3 bg-muted/50 rounded-md border border-dashed space-y-2">
+                  <div>
+                    <Label
+                      htmlFor="memory-medium-term-interval"
+                      className="text-sm font-medium"
+                    >
+                      {t('memory.mediumTermCompressionInterval') ||
+                        'Intervalo de compressão (médio prazo)'}
+                    </Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {t('memory.mediumTermCompressionIntervalDescription') ||
+                        'A cada quantas mensagens a memória de médio prazo é comprimida.'}
+                    </p>
+                  </div>
+                  <Input
+                    id="memory-medium-term-interval"
+                    type="number"
+                    min={1}
+                    value={data.memory_medium_term_compression_interval}
+                    onChange={e =>
+                      handleAdvancedConfigChange(
+                        'memory_medium_term_compression_interval',
+                        parseInt(e.target.value, 10) || 10,
+                      )
+                    }
+                    disabled={isReadOnly}
+                    className="max-w-[120px]"
+                  />
                 </div>
               )}
             </div>
